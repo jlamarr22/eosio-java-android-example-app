@@ -207,7 +207,6 @@ public class TransactionProcessorTest {
         this.rpcProvider = rpcProvider;
         this.abiProvider = abiProvider;
         this.signatureProvider = signatureProvider;
-        this.setChainId("cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f");
     }
 
     /**
@@ -816,7 +815,10 @@ public class TransactionProcessorTest {
             }
         }
 
-        clonedTransaction.setContextFreeData(this.serializeContextFreeData(clonedTransaction.getContextFreeData()));
+        AbiEosSerializationObject contextFreeDataSerializationObject =
+                this.serializeContextFreeData(clonedTransaction.getContextFreeData(), this.chainId, this.abiProvider);
+
+        clonedTransaction.setContextFreeData(contextFreeDataSerializationObject.getHex());
 
         // Apply serialized actions to current transaction to be used on getRequiredKeys
         // From now, the current transaction keep serialized actions
@@ -897,9 +899,39 @@ public class TransactionProcessorTest {
     }
 
     @NotNull
-    private String serializeContextFreeData(String contextFreeData) {
-        // this.serializationProvider.serializeData(contextFreeData);
-        return contextFreeData;
+    private AbiEosSerializationObject serializeContextFreeData(String contextFreeData, String chainId, IABIProvider abiProvider)
+            throws TransactionCreateSignatureRequestError {
+        String actionAbiJSON;
+        try {
+            actionAbiJSON = abiProvider
+                    .getAbi(chainId, new EOSIOName("tictactoe"));
+        } catch (GetAbiError getAbiError) {
+            throw new TransactionCreateSignatureRequestAbiError(
+                    String.format(ErrorConstants.TRANSACTION_PROCESSOR_GET_ABI_ERROR,
+                            "tictactoe"), getAbiError);
+        }
+
+        AbiEosSerializationObject actionAbiEosSerializationObject = new AbiEosSerializationObject(
+                "tictactoe", "contextfree",
+                null, actionAbiJSON);
+        actionAbiEosSerializationObject.setHex("");
+
+        // !!! At this step, the data field of the action is still in JSON format.
+        actionAbiEosSerializationObject.setJson(contextFreeData);
+
+        try {
+            this.serializationProvider.serialize(actionAbiEosSerializationObject);
+            if (actionAbiEosSerializationObject.getHex().isEmpty()) {
+                throw new TransactionCreateSignatureRequestSerializationError(
+                        ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_ACTION_WORKED_BUT_EMPTY_RESULT);
+            }
+        } catch (SerializeError | TransactionCreateSignatureRequestSerializationError serializeError) {
+            throw new TransactionCreateSignatureRequestSerializationError(
+                    String.format(ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_ACTION_ERROR,
+                            "tictactoe"), serializeError);
+        }
+
+        return actionAbiEosSerializationObject;
     }
 
     /**

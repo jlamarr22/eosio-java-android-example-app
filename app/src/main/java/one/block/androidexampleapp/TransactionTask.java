@@ -159,7 +159,8 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
                 "\"host\": \"" + host + "\"\n" +
                 "}";
 
-        String contextFreeDataString = "010441424344";
+        //String contextFreeDataString = "010441424344";
+        String contextFreeDataString = "[[65, 66, 67, 68]]";
 
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), contextFreeData);
@@ -171,7 +172,7 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
             //processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFree), contextFreeDataString);
             //processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFree));
             //processor.prepare(Collections.singletonList(action));
-            processor.prepare(new ArrayList<Action>(), new ArrayList<Action>(), contextFreeDataString);
+            processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFree), contextFreeData);
 
             // Sign and broadcast the transaction.
             this.publishProgress("Signing and Broadcasting Transaction...");
