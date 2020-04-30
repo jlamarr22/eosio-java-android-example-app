@@ -62,7 +62,6 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'one.block:eosiojava:0.1.0'
     implementation 'one.block:eosiojavasoftkeysignatureprovider:0.1.1'
     implementation 'one.block:eosiojavaandroidabieosserializationprovider:0.1.0'
     implementation 'one.block:eosiojavarpcprovider:0.1.1'
