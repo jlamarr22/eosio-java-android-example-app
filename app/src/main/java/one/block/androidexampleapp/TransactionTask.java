@@ -151,20 +151,11 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
                 "\"host\": \"" + host + "\"\n" +
                 "}";
 
-        //String contextFreeDataString = "010441424344";
-        String contextFreeDataString = "[[65, 66, 67, 68]]";
-
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), contextFreeData);
-        Action contextFree = new Action(account, "contextfree", new ArrayList<Authorization>(), contextFreeData);
         try {
-            // EOS6bRs6knaaHyvpVXd5EgAPoxrZkkeDv89M1jidHCt86W5rkwr1q
-            // Prepare transaction with above action. A transaction can be executed with multiple action.
             this.publishProgress("Preparing Transaction...");
-            //processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFree), contextFreeDataString);
-            //processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFree));
-            //processor.prepare(Collections.singletonList(action));
-            processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFree), contextFreeData);
+            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), contextFreeData);
 
             // Sign and broadcast the transaction.
             this.publishProgress("Signing and Broadcasting Transaction...");
@@ -197,128 +188,5 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         void update(String updateContent);
 
         void finish(boolean success, String updateContent);
-    }
-
-    public class TransactionProcessorExtended extends TransactionProcessor {
-
-        public ISerializationProvider theSerializationProvider;
-        public String chainId;
-        public Transaction theTransaction;
-        public TransactionProcessorExtended(@NotNull ISerializationProvider serializationProvider, @NotNull IRPCProvider rpcProvider, @NotNull IABIProvider abiProvider, @NotNull ISignatureProvider signatureProvider) {
-            super(serializationProvider, rpcProvider, abiProvider, signatureProvider);
-            this.theSerializationProvider = serializationProvider;
-            this.chainId = "http://10.0.2.2:8888";
-        }
-
-        public void PrepareExtended(@NotNull List<Action> actions, @NotNull List<Action> contextFreeActions, @NotNull String contextFreeData) throws TransactionPrepareError {
-            this.prepare(actions, contextFreeActions);
-            //String something = this.serialize();
-        }
-
-//        private AbiEosSerializationObject SerializeContextFreeData(Action action, String chainId, IABIProvider abiProvider)
-//                throws TransactionCreateSignatureRequestError {
-//            String actionAbiJSON;
-//            try {
-//                actionAbiJSON = abiProvider
-//                        .getAbi(chainId, new EOSIOName(action.getAccount()));
-//            } catch (GetAbiError getAbiError) {
-//                throw new TransactionCreateSignatureRequestAbiError(
-//                        String.format(ErrorConstants.TRANSACTION_PROCESSOR_GET_ABI_ERROR,
-//                                action.getAccount()), getAbiError);
-//            }
-//
-//            AbiEosSerializationObject actionAbiEosSerializationObject = new AbiEosSerializationObject(
-//                    action.getAccount(), action.getName(),
-//                    null, actionAbiJSON);
-//            actionAbiEosSerializationObject.setHex("");
-//
-//            // !!! At this step, the data field of the action is still in JSON format.
-//            actionAbiEosSerializationObject.setJson(action.getData());
-//
-//            try {
-//                this.theSerializationProvider.serialize(actionAbiEosSerializationObject);
-//                if (actionAbiEosSerializationObject.getHex().isEmpty()) {
-//                    throw new TransactionCreateSignatureRequestSerializationError(
-//                            ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_ACTION_WORKED_BUT_EMPTY_RESULT);
-//                }
-//            } catch (SerializeError | TransactionCreateSignatureRequestSerializationError serializeError) {
-//                throw new TransactionCreateSignatureRequestSerializationError(
-//                        String.format(ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_ACTION_ERROR,
-//                                action.getAccount()), serializeError);
-//            }
-//
-//            return actionAbiEosSerializationObject;
-//        }
-//
-//        @NotNull
-//        private String serializeTransaction() throws TransactionCreateSignatureRequestError {
-//            Transaction clonedTransaction;
-//            try {
-//                clonedTransaction = Utils.clone(this.transaction);
-//            } catch (IOException e) {
-//                throw new TransactionCreateSignatureRequestError(
-//                        ErrorConstants.TRANSACTION_PROCESSOR_PREPARE_CLONE_ERROR, e);
-//            } catch (ClassNotFoundException e) {
-//                throw new TransactionCreateSignatureRequestError(
-//                        ErrorConstants.TRANSACTION_PROCESSOR_PREPARE_CLONE_CLASS_NOT_FOUND, e);
-//            }
-//
-//            if (clonedTransaction == null) {
-//                throw new TransactionCreateSignatureRequestError(
-//                        ErrorConstants.TRANSACTION_PROCESSOR_PREPARE_CLONE_ERROR);
-//            }
-//
-//        /* Check for chain id
-//         Call getInfo() if chainId is NULL or Empty
-//         */
-//            if (this.chainId == null || this.chainId.isEmpty()) {
-//                try {
-//                    GetInfoResponse getInfoResponse = this.rpcProvider.getInfo();
-//                    this.chainId = getInfoResponse.getChainId();
-//                } catch (GetInfoRpcError getInfoRpcError) {
-//                    throw new TransactionCreateSignatureRequestRpcError(
-//                            ErrorConstants.TRANSACTION_PROCESSOR_RPC_GET_INFO, getInfoRpcError);
-//                }
-//            }
-//
-//            // Serialize each action of Transaction's actions
-//            for (Action action : clonedTransaction.getActions()) {
-//                AbiEosSerializationObject actionAbiEosSerializationObject = this.serializeAction(action, this.chainId, this.abiProvider);
-//                // !!! Set serialization result to data field of the action
-//                action.setData(actionAbiEosSerializationObject.getHex());
-//            }
-//
-//            // Serialize each action of Transaction's context free actions if they exist.
-//            if (!clonedTransaction.getContextFreeActions().isEmpty()) {
-//                for (Action contextFreeAction : clonedTransaction.getContextFreeActions()) {
-//                    AbiEosSerializationObject actionAbiEosSerializationObject = this.serializeAction(contextFreeAction, this.chainId, this.abiProvider);
-//                    // !!! Set serialization result to data field of the contextFreeAction
-//                    contextFreeAction.setData(actionAbiEosSerializationObject.getHex());
-//                }
-//            }
-//
-//            // Apply serialized actions to current transaction to be used on getRequiredKeys
-//            // From now, the current transaction keep serialized actions
-//            this.transaction = clonedTransaction;
-//
-//            // Serialize the whole transaction
-//            String _serializedTransaction;
-//            try {
-//                String clonedTransactionToJSON = Utils.getGson(DateFormatter.BACKEND_DATE_PATTERN).toJson(clonedTransaction);
-//                _serializedTransaction = this.serializationProvider
-//                        .serializeTransaction(clonedTransactionToJSON);
-//                if (_serializedTransaction == null || _serializedTransaction.isEmpty()) {
-//                    throw new TransactionCreateSignatureRequestSerializationError(
-//                            ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_TRANSACTION_WORKED_BUT_EMPTY_RESULT);
-//                }
-//
-//            } catch (SerializeTransactionError serializeTransactionError) {
-//                throw new TransactionCreateSignatureRequestSerializationError(
-//                        ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_TRANSACTION_ERROR,
-//                        serializeTransactionError);
-//            }
-//
-//            return _serializedTransaction;
-//        }
     }
 }
