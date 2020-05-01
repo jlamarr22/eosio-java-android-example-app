@@ -1,4 +1,4 @@
-package one.block.androidexampleapp;
+package one.block.androidexampleapp.testImplementation;
 
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;

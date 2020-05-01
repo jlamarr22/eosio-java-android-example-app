@@ -2,7 +2,6 @@ package one.block.androidexampleapp;
 
 import android.os.AsyncTask;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,13 +10,10 @@ import androidx.annotation.NonNull;
 
 import org.jetbrains.annotations.NotNull;
 
-import one.block.eosiojava.error.ErrorConstants;
-import one.block.eosiojava.error.abiProvider.GetAbiError;
+import one.block.androidexampleapp.ErrorUtils;
+import one.block.androidexampleapp.testImplementation.TransactionProcessorTest;
+import one.block.androidexampleapp.testImplementation.TransactionSessionTest;
 import one.block.eosiojava.error.serializationProvider.SerializationProviderError;
-import one.block.eosiojava.error.serializationProvider.SerializeError;
-import one.block.eosiojava.error.session.TransactionCreateSignatureRequestAbiError;
-import one.block.eosiojava.error.session.TransactionCreateSignatureRequestError;
-import one.block.eosiojava.error.session.TransactionCreateSignatureRequestSerializationError;
 import one.block.eosiojava.error.session.TransactionPrepareError;
 import one.block.eosiojava.error.session.TransactionSignAndBroadCastError;
 import one.block.eosiojava.implementations.ABIProviderImpl;
@@ -25,8 +21,6 @@ import one.block.eosiojava.interfaces.IABIProvider;
 import one.block.eosiojava.interfaces.IRPCProvider;
 import one.block.eosiojava.interfaces.ISerializationProvider;
 import one.block.eosiojava.interfaces.ISignatureProvider;
-import one.block.eosiojava.models.AbiEosSerializationObject;
-import one.block.eosiojava.models.EOSIOName;
 import one.block.eosiojava.models.rpcProvider.Action;
 import one.block.eosiojava.models.rpcProvider.Authorization;
 import one.block.eosiojava.models.rpcProvider.Transaction;
@@ -34,13 +28,11 @@ import one.block.eosiojava.models.rpcProvider.response.PushTransactionResponse;
 import one.block.eosiojava.models.rpcProvider.response.RPCResponseError;
 import one.block.eosiojava.session.TransactionProcessor;
 import one.block.eosiojava.session.TransactionSession;
-import one.block.eosiojava.utilities.Utils;
 import one.block.eosiojavaabieosserializationprovider.AbiEosSerializationProviderImpl;
 import one.block.eosiojavarpcprovider.error.EosioJavaRpcProviderInitializerError;
 import one.block.eosiojavarpcprovider.implementations.EosioJavaRpcProviderImpl;
 import one.block.eosiosoftkeysignatureprovider.SoftKeySignatureProviderImpl;
 import one.block.eosiosoftkeysignatureprovider.error.ImportKeyError;
-import one.block.androidexampleapp.TransactionProcessorTest;
 
 /**
  * This class is an example about the most basic/easy way to use eosio-java to send a transaction.

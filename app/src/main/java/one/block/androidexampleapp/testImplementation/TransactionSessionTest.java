@@ -1,12 +1,10 @@
-package one.block.androidexampleapp;
+package one.block.androidexampleapp.testImplementation;
 
 import one.block.eosiojava.error.session.TransactionProcessorConstructorInputError;
 import one.block.eosiojava.interfaces.IABIProvider;
 import one.block.eosiojava.interfaces.IRPCProvider;
 import one.block.eosiojava.interfaces.ISerializationProvider;
 import one.block.eosiojava.interfaces.ISignatureProvider;
-import one.block.eosiojava.models.rpcProvider.Transaction;
-import one.block.eosiojava.session.TransactionSession;
 
 import org.jetbrains.annotations.NotNull;
 
