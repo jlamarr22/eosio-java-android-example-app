@@ -2,6 +2,7 @@ package one.block.androidexampleapp;
 
 import android.os.AsyncTask;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,6 +86,11 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         String privateKey = params[3];
         String amount = params[4];
         String memo = params[5];
+        String exampleAccount = "example";
+        String account = "tictactoe";
+        String propertyName = "aproperty";
+        String challenger = "opponent";
+        String host = "host";
 
         this.publishProgress("Transferring " + amount + " to " + toAccount);
 
@@ -127,19 +133,24 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 
         // Apply transaction data to Action's data
         String jsonData = "{\n" +
-                "\"from\": \"" + fromAccount + "\",\n" +
-                "\"to\": \"" + toAccount + "\",\n" +
-                "\"quantity\": \"" + amount + "\",\n" +
-                "\"memo\" : \"" + memo + "\"\n" +
+                "\"challenger\": \"" + challenger + "\",\n" +
+                "\"host\": \"" + host + "\",\n" +
+                "\"by\": \"" + host + "\"\n" +
+                "}";
+
+        String contextFreeData = "{\n" +
+                "\"challenger\": \"" + challenger + "\",\n" +
+                "\"host\": \"" + host + "\"\n" +
                 "}";
 
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action("eosio.token", "transfer", Collections.singletonList(new Authorization(fromAccount, "active")), jsonData);
+        Action contextFree = new Action(account, "contextfree", new ArrayList<Authorization>(), contextFreeData);
         try {
 
             // Prepare transaction with above action. A transaction can be executed with multiple action.
             this.publishProgress("Preparing Transaction...");
-            processor.prepare(Collections.singletonList(action));
+            processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFree));
 
             // Sign and broadcast the transaction.
             this.publishProgress("Signing and Broadcasting Transaction...");
