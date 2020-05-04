@@ -60,6 +60,8 @@ import one.block.eosiojava.models.signatureProvider.EosioTransactionSignatureRes
 import one.block.eosiojava.session.TransactionProcessor;
 import one.block.eosiojava.utilities.DateFormatter;
 import one.block.eosiojava.utilities.Utils;
+
+import org.bouncycastle.util.encoders.Hex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -236,7 +238,7 @@ public class TransactionProcessorTest {
     //region public methods
 
     public void prepare(@NotNull List<Action> actions, @NotNull List<Action> contextFreeActions) throws TransactionPrepareError {
-        prepare(actions, contextFreeActions, "");
+        prepare(actions, contextFreeActions, new byte[0][0]);
     }
 
     /**
@@ -262,7 +264,7 @@ public class TransactionProcessorTest {
      *              {@link TransactionPrepareRpcError} thrown if any RPC call ({@link IRPCProvider#getInfo()}
      *              and {@link IRPCProvider#getBlock(GetBlockRequest)}) return or throw an error
      */
-    public void prepare(@NotNull List<Action> actions, @NotNull List<Action> contextFreeActions, String contextFreeData) throws TransactionPrepareError {
+    public void prepare(@NotNull List<Action> actions, @NotNull List<Action> contextFreeActions, byte[][] contextFreeData) throws TransactionPrepareError {
         if (actions.isEmpty()) {
             throw new TransactionPrepareInputError(
                     ErrorConstants.TRANSACTION_PROCESSOR_ACTIONS_EMPTY_ERROR_MSG);
@@ -452,7 +454,8 @@ public class TransactionProcessorTest {
         }
 
         PushTransactionRequest pushTransactionRequest = new PushTransactionRequest(this.signatures,
-                0, this.transaction.getContextFreeData(), this.serializedTransaction);
+                0, this.transaction.getPackedContextFreeData(), this.serializedTransaction); //41424344
+
         try {
             return this.pushTransaction(pushTransactionRequest);
         } catch (TransactionPushTransactionError transactionPushTransactionError) {
@@ -505,7 +508,8 @@ public class TransactionProcessorTest {
 
         // Signatures and serializedTransaction are assigned and finalized in getSignature() method
         PushTransactionRequest pushTransactionRequest = new PushTransactionRequest(this.signatures,
-                0, this.transaction.getContextFreeData(), this.serializedTransaction);
+                0, this.transaction.getPackedContextFreeData(), this.serializedTransaction);
+
         try {
             return this.pushTransaction(pushTransactionRequest);
         } catch (TransactionPushTransactionError transactionPushTransactionError) {
@@ -815,10 +819,6 @@ public class TransactionProcessorTest {
             }
         }
 
-        AbiEosSerializationObject contextFreeDataSerializationObject =
-                this.serializeContextFreeData(clonedTransaction.getContextFreeData(), this.chainId, this.abiProvider);
-
-        clonedTransaction.setContextFreeData(contextFreeDataSerializationObject.getHex());
 
         // Apply serialized actions to current transaction to be used on getRequiredKeys
         // From now, the current transaction keep serialized actions
@@ -893,42 +893,6 @@ public class TransactionProcessorTest {
             throw new TransactionCreateSignatureRequestSerializationError(
                     String.format(ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_ACTION_ERROR,
                             action.getAccount()), serializeError);
-        }
-
-        return actionAbiEosSerializationObject;
-    }
-
-    @NotNull
-    private AbiEosSerializationObject serializeContextFreeData(String contextFreeData, String chainId, IABIProvider abiProvider)
-            throws TransactionCreateSignatureRequestError {
-        String actionAbiJSON;
-        try {
-            actionAbiJSON = abiProvider
-                    .getAbi(chainId, new EOSIOName("tictactoe"));
-        } catch (GetAbiError getAbiError) {
-            throw new TransactionCreateSignatureRequestAbiError(
-                    String.format(ErrorConstants.TRANSACTION_PROCESSOR_GET_ABI_ERROR,
-                            "tictactoe"), getAbiError);
-        }
-
-        AbiEosSerializationObject actionAbiEosSerializationObject = new AbiEosSerializationObject(
-                "tictactoe", "contextfree",
-                null, actionAbiJSON);
-        actionAbiEosSerializationObject.setHex("");
-
-        // !!! At this step, the data field of the action is still in JSON format.
-        actionAbiEosSerializationObject.setJson(contextFreeData);
-
-        try {
-            this.serializationProvider.serialize(actionAbiEosSerializationObject);
-            if (actionAbiEosSerializationObject.getHex().isEmpty()) {
-                throw new TransactionCreateSignatureRequestSerializationError(
-                        ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_ACTION_WORKED_BUT_EMPTY_RESULT);
-            }
-        } catch (SerializeError | TransactionCreateSignatureRequestSerializationError serializeError) {
-            throw new TransactionCreateSignatureRequestSerializationError(
-                    String.format(ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_ACTION_ERROR,
-                            "tictactoe"), serializeError);
         }
 
         return actionAbiEosSerializationObject;

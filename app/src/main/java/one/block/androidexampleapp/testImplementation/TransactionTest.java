@@ -3,12 +3,15 @@ package one.block.androidexampleapp.testImplementation;
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 import one.block.eosiojava.models.rpcProvider.Action;
 import one.block.eosiojava.models.rpcProvider.Transaction;
 import one.block.eosiojava.models.rpcProvider.response.GetBlockResponse;
 import one.block.eosiojava.models.rpcProvider.response.GetInfoResponse;
+
+import org.bouncycastle.util.encoders.Hex;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +21,9 @@ import org.jetbrains.annotations.NotNull;
 public class TransactionTest extends Transaction {
     @SerializedName("context_free_data")
     @NotNull
-    private String contextFreeData;
+    private String[] contextFreeData;
+
+    private byte[][] originalContextFreeData;
 
     /**
      * Instantiates a new Transaction.
@@ -40,9 +45,9 @@ public class TransactionTest extends Transaction {
                        @NotNull BigInteger maxCpuUsageMs, @NotNull BigInteger delaySec,
                        @NotNull List<Action> contextFreeActions,
                        @NotNull List<Action> actions, @NotNull List<String> transactionExtensions,
-                       @NotNull String contextFreeData) {
+                       @NotNull byte[][] contextFreeData) {
         super(expiration, refBlockNum, refBlockPrefix, maxNetUsageWords, maxCpuUsageMs, delaySec, contextFreeActions, actions, transactionExtensions);
-        this.contextFreeData = contextFreeData;
+        this.setContextFreeData(contextFreeData);
     }
 
     /**
@@ -65,14 +70,35 @@ public class TransactionTest extends Transaction {
                        @NotNull List<Action> contextFreeActions,
                        @NotNull List<Action> actions, @NotNull List<String> transactionExtensions) {
         this(expiration, refBlockNum, refBlockPrefix, maxNetUsageWords, maxCpuUsageMs, delaySec,
-                contextFreeActions, actions, transactionExtensions, "");
+                contextFreeActions, actions, transactionExtensions, new byte[0][0]);
     }
 
     @NotNull
-    public String getContextFreeData() { return contextFreeData; }
+    public String[] getContextFreeData() { return contextFreeData; }
 
-    public void setContextFreeData(@NotNull String contextFreeData) {
+    @NotNull byte[][] getOriginalContextFreeData() { return originalContextFreeData; }
+
+    public void setContextFreeData(@NotNull byte[][] contextFreeDataBytes) {
+        String[] contextFreeData = new String[contextFreeDataBytes.length];
+        for(int i = 0; i < contextFreeDataBytes.length; i++) {
+            contextFreeData[i] = Hex.toHexString(contextFreeDataBytes[i]);
+        }
+
         this.contextFreeData = contextFreeData;
+        this.originalContextFreeData = contextFreeDataBytes;
+    }
+
+    public String getPackedContextFreeData() {
+        String str = String.format("%02X", this.originalContextFreeData.length);
+        if (str.length() == 0) {
+            return "";
+        }
+        for (int i = 0; i < this.originalContextFreeData.length; i++) {
+            String str2Len = String.format("%02X", this.originalContextFreeData[i].length);
+            str += str2Len;
+            str += this.contextFreeData[i];
+        }
+        return str;
     }
 }
 

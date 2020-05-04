@@ -8,9 +8,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
-import org.jetbrains.annotations.NotNull;
+import org.bouncycastle.util.encoders.Hex;
 
-import one.block.androidexampleapp.ErrorUtils;
 import one.block.androidexampleapp.testImplementation.TransactionProcessorTest;
 import one.block.androidexampleapp.testImplementation.TransactionSessionTest;
 import one.block.eosiojava.error.serializationProvider.SerializationProviderError;
@@ -140,22 +139,56 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         // Apply transaction data to Action's data
         String jsonData = "{\n" +
                 "\"challenger\": \"" + challenger + "\",\n" +
-                "\"host\": \"" + host + "\",\n" +
-                "\"by\": \"" + host + "\"\n" +
+                "\"host\": \"" + host + "\"\n" +
                 "}";
 
         this.publishProgress("jsonData: " + jsonData);
 
-        String contextFreeData = "{\n" +
-                "\"challenger\": \"" + challenger + "\",\n" +
-                "\"host\": \"" + host + "\"\n" +
-                "}";
+//        String contextFreeData = "{\n" +
+//                "\"challenger\": \"" + challenger + "\",\n" +
+//                "\"host\": \"" + host + "\"\n" +
+//                "}";
+
+        byte[] byteArray = new byte[4];
+        byteArray[0] = 65;
+        byteArray[1] = 66;
+        byteArray[2] = 67;
+        byteArray[3] = 68;
+        byte[] byteArray2 = new byte[5];
+        byteArray2[0] = 65;
+        byteArray2[1] = 66;
+        byteArray2[2] = 67;
+        byteArray2[3] = 68;
+        byteArray2[4] = 69;
+
+        byte[][] multipleByteArr = new byte[2][4];
+        multipleByteArr[0] = byteArray;
+        multipleByteArr[1] = byteArray2;
+
+        //byteArray
+        String[] contextFreeDataTest = new String[multipleByteArr.length];
+        for(int i = 0; i < multipleByteArr.length; i++) {
+            contextFreeDataTest[i] = Hex.toHexString(multipleByteArr[i]);
+            this.publishProgress("Context free data: " + contextFreeDataTest[i]);
+        }
+
+
+
+//        String[] contextFreeDataTest = new String[1];// "[[65, 66, 67, 68]]";
+//        contextFreeDataTest[0] = Hex.toHexString(byteArray);
+//        String contextFreeData = "{\n" +
+//                "\"data\": \"" + contextFreeDataTest + "\"\n" +
+//                "}";
+        //this.publishProgress("Context free data: " + contextFreeDataTest);
+        //byte[] byteArray = contextFreeData.getBytes();
+
+        //byte[][] cfd = "[[65, 66, 67, 68]]".getBytes();
 
         // Creating action with action's data, eosio.token contract and transfer action.
-        Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), contextFreeData);
+        Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
         try {
             this.publishProgress("Preparing Transaction...");
-            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), contextFreeData);
+            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), multipleByteArr);
 
             // Sign and broadcast the transaction.
             this.publishProgress("Signing and Broadcasting Transaction...");
