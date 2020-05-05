@@ -14,6 +14,7 @@ import one.block.eosiojava.error.rpcProvider.GetInfoRpcError;
 import one.block.eosiojava.error.rpcProvider.GetRequiredKeysRpcError;
 import one.block.eosiojava.error.rpcProvider.PushTransactionRpcError;
 import one.block.eosiojava.error.serializationProvider.DeserializeTransactionError;
+import one.block.eosiojava.error.serializationProvider.SerializationProviderError;
 import one.block.eosiojava.error.serializationProvider.SerializeError;
 import one.block.eosiojava.error.serializationProvider.SerializeTransactionError;
 import one.block.eosiojava.error.session.TransactionBroadCastEmptySignatureError;
@@ -690,34 +691,34 @@ public class TransactionProcessorTest {
         // Store current transaction as original transaction
         this.originalTransaction = this.transaction;
 
-        if (this.serializedTransaction != null
-                && !this.serializedTransaction
-                .equals(eosioTransactionSignatureResponse.getSerializeTransaction())) {
-            // Throw error if an unmodifiable transaction is modified
-            if (!this.isTransactionModificationAllowed) {
-                throw new TransactionGetSignatureNotAllowModifyTransactionError(
-                        ErrorConstants.TRANSACTION_IS_NOT_ALLOWED_TOBE_MODIFIED);
-            }
-
-            /* Deserialize and update new transaction to the current transaction if it was
-               and modification is allowed.*/
-            String transactionJSON;
-            try {
-                transactionJSON = this.serializationProvider
-                        .deserializeTransaction(
-                                eosioTransactionSignatureResponse.getSerializeTransaction());
-                if (transactionJSON == null || transactionJSON.isEmpty()) {
-                    throw new DeserializeTransactionError(
-                            ErrorConstants.TRANSACTION_PROCESSOR_GET_SIGN_DESERIALIZE_TRANS_EMPTY_ERROR);
-                }
-            } catch (DeserializeTransactionError deserializeTransactionError) {
-                throw new TransactionGetSignatureDeserializationError(
-                        ErrorConstants.TRANSACTION_PROCESSOR_GET_SIGN_DESERIALIZE_TRANS_ERROR,
-                        deserializeTransactionError);
-            }
-
-            this.transaction = Utils.getGson(DateFormatter.BACKEND_DATE_PATTERN).fromJson(transactionJSON, TransactionTest.class);
-        }
+//        if (this.serializedTransaction != null
+//                && !this.serializedTransaction
+//                .equals(eosioTransactionSignatureResponse.getSerializeTransaction())) {
+//            // Throw error if an unmodifiable transaction is modified
+//            if (!this.isTransactionModificationAllowed) {
+//                throw new TransactionGetSignatureNotAllowModifyTransactionError(
+//                        ErrorConstants.TRANSACTION_IS_NOT_ALLOWED_TOBE_MODIFIED);
+//            }
+//
+//            /* Deserialize and update new transaction to the current transaction if it was
+//               and modification is allowed.*/
+//            String transactionJSON;
+//            try {
+//                transactionJSON = this.serializationProvider
+//                        .deserializeTransaction(
+//                                eosioTransactionSignatureResponse.getSerializeTransaction());
+//                if (transactionJSON == null || transactionJSON.isEmpty()) {
+//                    throw new DeserializeTransactionError(
+//                            ErrorConstants.TRANSACTION_PROCESSOR_GET_SIGN_DESERIALIZE_TRANS_EMPTY_ERROR);
+//                }
+//            } catch (DeserializeTransactionError deserializeTransactionError) {
+//                throw new TransactionGetSignatureDeserializationError(
+//                        ErrorConstants.TRANSACTION_PROCESSOR_GET_SIGN_DESERIALIZE_TRANS_ERROR,
+//                        deserializeTransactionError);
+//            }
+//
+//            this.transaction = Utils.getGson(DateFormatter.BACKEND_DATE_PATTERN).fromJson(transactionJSON, TransactionTest.class);
+//        }
 
         this.signatures = new ArrayList<>();
         this.signatures.addAll(eosioTransactionSignatureResponse.getSignatures());
@@ -815,10 +816,10 @@ public class TransactionProcessorTest {
             }
         }
 
-        AbiEosSerializationObject contextFreeDataSerializationObject =
-                this.serializeContextFreeData(clonedTransaction.getContextFreeData(), this.chainId, this.abiProvider);
-
-        clonedTransaction.setContextFreeData(contextFreeDataSerializationObject.getHex());
+//        AbiEosSerializationObject contextFreeDataSerializationObject =
+//                this.serializeContextFreeData(clonedTransaction.getContextFreeData(), this.chainId, this.abiProvider);
+//
+//        clonedTransaction.setContextFreeData(contextFreeDataSerializationObject.getHex());
 
         // Apply serialized actions to current transaction to be used on getRequiredKeys
         // From now, the current transaction keep serialized actions
@@ -828,20 +829,294 @@ public class TransactionProcessorTest {
         String _serializedTransaction;
         try {
             String clonedTransactionToJSON = Utils.getGson(DateFormatter.BACKEND_DATE_PATTERN).toJson(clonedTransaction);
-            _serializedTransaction = this.serializationProvider
-                    .serializeTransaction(clonedTransactionToJSON);
+            System.out.println("JSON before: " + clonedTransactionToJSON);
+            _serializedTransaction = this.serializationProvider.serializeTransaction(clonedTransactionToJSON);
             if (_serializedTransaction == null || _serializedTransaction.isEmpty()) {
                 throw new TransactionCreateSignatureRequestSerializationError(
                         ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_TRANSACTION_WORKED_BUT_EMPTY_RESULT);
             }
 
         } catch (SerializeTransactionError serializeTransactionError) {
-            throw new TransactionCreateSignatureRequestSerializationError(
-                    ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_TRANSACTION_ERROR,
-                    serializeTransactionError);
+            throw new TransactionCreateSignatureRequestSerializationError(serializeTransactionError.getMessage());
         }
 
+//        String deserialized = "";
+//        try {
+//            deserialized = this.deserializeTransactionTest(_serializedTransaction);
+//        } catch (DeserializeTransactionError deserializeTransactionError) {
+//            deserializeTransactionError.printStackTrace();
+//        }
+//        System.out.println("Deserialized: " + deserialized);
+
         return _serializedTransaction;
+    }
+
+    public String serializeTransactionTest(String json) throws SerializeTransactionError {
+        String abi = "{\n" +
+                "    \"version\": \"eosio::abi/1.0\",\n" +
+                "    \"types\": [\n" +
+                "        {\n" +
+                "            \"new_type_name\": \"account_name\",\n" +
+                "            \"type\": \"name\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"new_type_name\": \"action_name\",\n" +
+                "            \"type\": \"name\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"new_type_name\": \"permission_name\",\n" +
+                "            \"type\": \"name\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"structs\": [\n" +
+                "        {\n" +
+                "            \"name\": \"permission_level\",\n" +
+                "            \"base\": \"\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"actor\",\n" +
+                "                    \"type\": \"account_name\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"permission\",\n" +
+                "                    \"type\": \"permission_name\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"action\",\n" +
+                "            \"base\": \"\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"account\",\n" +
+                "                    \"type\": \"account_name\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"name\",\n" +
+                "                    \"type\": \"action_name\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"authorization\",\n" +
+                "                    \"type\": \"permission_level[]\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"data\",\n" +
+                "                    \"type\": \"bytes\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"extension\",\n" +
+                "            \"base\": \"\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"type\",\n" +
+                "                    \"type\": \"uint16\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"data\",\n" +
+                "                    \"type\": \"bytes\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"transaction_header\",\n" +
+                "            \"base\": \"\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"expiration\",\n" +
+                "                    \"type\": \"time_point_sec\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"ref_block_num\",\n" +
+                "                    \"type\": \"uint16\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"ref_block_prefix\",\n" +
+                "                    \"type\": \"uint32\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"max_net_usage_words\",\n" +
+                "                    \"type\": \"varuint32\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"max_cpu_usage_ms\",\n" +
+                "                    \"type\": \"uint8\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"delay_sec\",\n" +
+                "                    \"type\": \"varuint32\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"transaction\",\n" +
+                "            \"base\": \"transaction_header\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"context_free_actions\",\n" +
+                "                    \"type\": \"action[]\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"actions\",\n" +
+                "                    \"type\": \"action[]\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"transaction_extensions\",\n" +
+                "                    \"type\": \"extension[]\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"context_free_data\",\n" +
+                "                    \"type\": \"bytes\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+
+        try {
+            AbiEosSerializationObject serializationObject = new AbiEosSerializationObject(null,
+                    "", "transaction", abi);
+            serializationObject.setJson(json);
+            this.serializationProvider.serialize(serializationObject);
+            return serializationObject.getHex();
+        } catch (SerializationProviderError serializationProviderError) {
+            throw new SerializeTransactionError(serializationProviderError);
+        }
+    }
+
+    public String deserializeTransactionTest(String hex) throws DeserializeTransactionError {
+        String abi = "{\n" +
+                "    \"version\": \"eosio::abi/1.0\",\n" +
+                "    \"types\": [\n" +
+                "        {\n" +
+                "            \"new_type_name\": \"account_name\",\n" +
+                "            \"type\": \"name\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"new_type_name\": \"action_name\",\n" +
+                "            \"type\": \"name\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"new_type_name\": \"permission_name\",\n" +
+                "            \"type\": \"name\"\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"structs\": [\n" +
+                "        {\n" +
+                "            \"name\": \"permission_level\",\n" +
+                "            \"base\": \"\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"actor\",\n" +
+                "                    \"type\": \"account_name\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"permission\",\n" +
+                "                    \"type\": \"permission_name\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"action\",\n" +
+                "            \"base\": \"\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"account\",\n" +
+                "                    \"type\": \"account_name\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"name\",\n" +
+                "                    \"type\": \"action_name\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"authorization\",\n" +
+                "                    \"type\": \"permission_level[]\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"data\",\n" +
+                "                    \"type\": \"bytes\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"extension\",\n" +
+                "            \"base\": \"\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"type\",\n" +
+                "                    \"type\": \"uint16\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"data\",\n" +
+                "                    \"type\": \"bytes\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"transaction_header\",\n" +
+                "            \"base\": \"\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"expiration\",\n" +
+                "                    \"type\": \"time_point_sec\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"ref_block_num\",\n" +
+                "                    \"type\": \"uint16\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"ref_block_prefix\",\n" +
+                "                    \"type\": \"uint32\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"max_net_usage_words\",\n" +
+                "                    \"type\": \"varuint32\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"max_cpu_usage_ms\",\n" +
+                "                    \"type\": \"uint8\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"delay_sec\",\n" +
+                "                    \"type\": \"varuint32\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"transaction\",\n" +
+                "            \"base\": \"transaction_header\",\n" +
+                "            \"fields\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"context_free_actions\",\n" +
+                "                    \"type\": \"action[]\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"actions\",\n" +
+                "                    \"type\": \"action[]\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"transaction_extensions\",\n" +
+                "                    \"type\": \"extension[]\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"context_free_data\",\n" +
+                "                    \"type\": \"bytes\"\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+
+        try {
+            AbiEosSerializationObject serializationObject = new AbiEosSerializationObject(null,
+                    "", "transaction", abi);
+            serializationObject.setHex(hex);
+            this.serializationProvider.deserialize(serializationObject);
+            return serializationObject.getJson();
+        } catch (SerializationProviderError serializationProviderError) {
+            throw new DeserializeTransactionError(serializationProviderError);
+        }
     }
 
     /**

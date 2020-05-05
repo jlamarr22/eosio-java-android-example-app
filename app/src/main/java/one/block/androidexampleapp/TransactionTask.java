@@ -152,10 +152,10 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
                 "}";
 
         // Creating action with action's data, eosio.token contract and transfer action.
-        Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), contextFreeData);
+        Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
         try {
             this.publishProgress("Preparing Transaction...");
-            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), contextFreeData);
+            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), "");
 
             // Sign and broadcast the transaction.
             this.publishProgress("Signing and Broadcasting Transaction...");

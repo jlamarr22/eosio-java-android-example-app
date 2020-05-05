@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 public class TransactionTest extends Transaction {
     @SerializedName("context_free_data")
     @NotNull
-    private String contextFreeData;
+    public String contextFreeData;
 
     /**
      * Instantiates a new Transaction.
@@ -42,6 +42,8 @@ public class TransactionTest extends Transaction {
                        @NotNull List<Action> actions, @NotNull List<String> transactionExtensions,
                        @NotNull String contextFreeData) {
         super(expiration, refBlockNum, refBlockPrefix, maxNetUsageWords, maxCpuUsageMs, delaySec, contextFreeActions, actions, transactionExtensions);
+        //this.contextFreeData = new String[] { "41424344", "4142434445" };
+        //this.contextFreeData = "020441424344054142434445";
         this.contextFreeData = contextFreeData;
     }
 
