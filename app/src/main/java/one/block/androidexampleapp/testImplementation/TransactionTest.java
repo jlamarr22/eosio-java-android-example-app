@@ -3,6 +3,7 @@ package one.block.androidexampleapp.testImplementation;
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 import one.block.eosiojava.models.rpcProvider.Action;
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 public class TransactionTest extends Transaction {
     @SerializedName("context_free_data")
     @NotNull
-    public String contextFreeData;
+    public List<String> contextFreeData;
 
     /**
      * Instantiates a new Transaction.
@@ -40,7 +41,7 @@ public class TransactionTest extends Transaction {
                        @NotNull BigInteger maxCpuUsageMs, @NotNull BigInteger delaySec,
                        @NotNull List<Action> contextFreeActions,
                        @NotNull List<Action> actions, @NotNull List<String> transactionExtensions,
-                       @NotNull String contextFreeData) {
+                       @NotNull List<String> contextFreeData) {
         super(expiration, refBlockNum, refBlockPrefix, maxNetUsageWords, maxCpuUsageMs, delaySec, contextFreeActions, actions, transactionExtensions);
         //this.contextFreeData = new String[] { "41424344", "4142434445" };
         //this.contextFreeData = "020441424344054142434445";
@@ -67,13 +68,13 @@ public class TransactionTest extends Transaction {
                        @NotNull List<Action> contextFreeActions,
                        @NotNull List<Action> actions, @NotNull List<String> transactionExtensions) {
         this(expiration, refBlockNum, refBlockPrefix, maxNetUsageWords, maxCpuUsageMs, delaySec,
-                contextFreeActions, actions, transactionExtensions, "");
+                contextFreeActions, actions, transactionExtensions, new ArrayList<String>());
     }
 
     @NotNull
-    public String getContextFreeData() { return contextFreeData; }
+    public List<String> getContextFreeData() { return contextFreeData; }
 
-    public void setContextFreeData(@NotNull String contextFreeData) {
+    public void setContextFreeData(@NotNull List<String> contextFreeData) {
         this.contextFreeData = contextFreeData;
     }
 }

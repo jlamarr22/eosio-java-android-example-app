@@ -4,9 +4,17 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+
 import one.block.eosiojava.error.ErrorConstants;
 import one.block.eosiojava.error.abiProvider.GetAbiError;
 import one.block.eosiojava.error.rpcProvider.GetBlockRpcError;
@@ -61,6 +69,8 @@ import one.block.eosiojava.models.signatureProvider.EosioTransactionSignatureRes
 import one.block.eosiojava.session.TransactionProcessor;
 import one.block.eosiojava.utilities.DateFormatter;
 import one.block.eosiojava.utilities.Utils;
+
+import org.bouncycastle.util.encoders.Hex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -237,7 +247,7 @@ public class TransactionProcessorTest {
     //region public methods
 
     public void prepare(@NotNull List<Action> actions, @NotNull List<Action> contextFreeActions) throws TransactionPrepareError {
-        prepare(actions, contextFreeActions, "");
+        prepare(actions, contextFreeActions, new ArrayList<String>());
     }
 
     /**
@@ -263,7 +273,7 @@ public class TransactionProcessorTest {
      *              {@link TransactionPrepareRpcError} thrown if any RPC call ({@link IRPCProvider#getInfo()}
      *              and {@link IRPCProvider#getBlock(GetBlockRequest)}) return or throw an error
      */
-    public void prepare(@NotNull List<Action> actions, @NotNull List<Action> contextFreeActions, String contextFreeData) throws TransactionPrepareError {
+    public void prepare(@NotNull List<Action> actions, @NotNull List<Action> contextFreeActions, List<String> contextFreeData) throws TransactionPrepareError {
         if (actions.isEmpty()) {
             throw new TransactionPrepareInputError(
                     ErrorConstants.TRANSACTION_PROCESSOR_ACTIONS_EMPTY_ERROR_MSG);
@@ -275,7 +285,13 @@ public class TransactionProcessorTest {
          Transaction if it was set by constructor.  Modifying a new transaction avoids corrupting the
          original if an exception is encountered during the modification process.
         */
-        TransactionTest preparingTransaction = new TransactionTest("", BigInteger.ZERO, BigInteger.ZERO,
+        Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
+        calendar.add(Calendar.HOUR, 4);
+        calendar.add(Calendar.SECOND, 3500);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DateFormatter.BACKEND_DATE_PATTERN);
+        String formatted = simpleDateFormat.format(calendar.getTime());
+
+        TransactionTest preparingTransaction = new TransactionTest(formatted, BigInteger.ZERO, BigInteger.ZERO,
                 BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO, contextFreeActions, actions,
                 new ArrayList<String>(), contextFreeData);
 
@@ -453,7 +469,7 @@ public class TransactionProcessorTest {
         }
 
         PushTransactionRequest pushTransactionRequest = new PushTransactionRequest(this.signatures,
-                0, this.transaction.getContextFreeData(), this.serializedTransaction);
+                0, "010161", this.serializedTransaction);
         try {
             return this.pushTransaction(pushTransactionRequest);
         } catch (TransactionPushTransactionError transactionPushTransactionError) {
@@ -506,7 +522,7 @@ public class TransactionProcessorTest {
 
         // Signatures and serializedTransaction are assigned and finalized in getSignature() method
         PushTransactionRequest pushTransactionRequest = new PushTransactionRequest(this.signatures,
-                0, this.transaction.getContextFreeData(), this.serializedTransaction);
+                0, "00", this.serializedTransaction);
         try {
             return this.pushTransaction(pushTransactionRequest);
         } catch (TransactionPushTransactionError transactionPushTransactionError) {
@@ -691,34 +707,34 @@ public class TransactionProcessorTest {
         // Store current transaction as original transaction
         this.originalTransaction = this.transaction;
 
-//        if (this.serializedTransaction != null
-//                && !this.serializedTransaction
-//                .equals(eosioTransactionSignatureResponse.getSerializeTransaction())) {
-//            // Throw error if an unmodifiable transaction is modified
-//            if (!this.isTransactionModificationAllowed) {
-//                throw new TransactionGetSignatureNotAllowModifyTransactionError(
-//                        ErrorConstants.TRANSACTION_IS_NOT_ALLOWED_TOBE_MODIFIED);
-//            }
-//
-//            /* Deserialize and update new transaction to the current transaction if it was
-//               and modification is allowed.*/
-//            String transactionJSON;
-//            try {
-//                transactionJSON = this.serializationProvider
-//                        .deserializeTransaction(
-//                                eosioTransactionSignatureResponse.getSerializeTransaction());
-//                if (transactionJSON == null || transactionJSON.isEmpty()) {
-//                    throw new DeserializeTransactionError(
-//                            ErrorConstants.TRANSACTION_PROCESSOR_GET_SIGN_DESERIALIZE_TRANS_EMPTY_ERROR);
-//                }
-//            } catch (DeserializeTransactionError deserializeTransactionError) {
-//                throw new TransactionGetSignatureDeserializationError(
-//                        ErrorConstants.TRANSACTION_PROCESSOR_GET_SIGN_DESERIALIZE_TRANS_ERROR,
-//                        deserializeTransactionError);
-//            }
-//
-//            this.transaction = Utils.getGson(DateFormatter.BACKEND_DATE_PATTERN).fromJson(transactionJSON, TransactionTest.class);
-//        }
+        if (this.serializedTransaction != null
+                && !this.serializedTransaction
+                .equals(eosioTransactionSignatureResponse.getSerializeTransaction())) {
+            // Throw error if an unmodifiable transaction is modified
+            if (!this.isTransactionModificationAllowed) {
+                throw new TransactionGetSignatureNotAllowModifyTransactionError(
+                        ErrorConstants.TRANSACTION_IS_NOT_ALLOWED_TOBE_MODIFIED);
+            }
+
+            /* Deserialize and update new transaction to the current transaction if it was
+               and modification is allowed.*/
+            String transactionJSON;
+            try {
+                transactionJSON = this.serializationProvider
+                        .deserializeTransaction(
+                                eosioTransactionSignatureResponse.getSerializeTransaction());
+                if (transactionJSON == null || transactionJSON.isEmpty()) {
+                    throw new DeserializeTransactionError(
+                            ErrorConstants.TRANSACTION_PROCESSOR_GET_SIGN_DESERIALIZE_TRANS_EMPTY_ERROR);
+                }
+            } catch (DeserializeTransactionError deserializeTransactionError) {
+                throw new TransactionGetSignatureDeserializationError(
+                        ErrorConstants.TRANSACTION_PROCESSOR_GET_SIGN_DESERIALIZE_TRANS_ERROR,
+                        deserializeTransactionError);
+            }
+
+            this.transaction = Utils.getGson(DateFormatter.BACKEND_DATE_PATTERN).fromJson(transactionJSON, TransactionTest.class);
+        }
 
         this.signatures = new ArrayList<>();
         this.signatures.addAll(eosioTransactionSignatureResponse.getSignatures());
@@ -738,12 +754,59 @@ public class TransactionProcessorTest {
     private PushTransactionResponse pushTransaction(PushTransactionRequest pushTransactionRequest)
             throws TransactionPushTransactionError {
         try {
+            System.out.println("SIGNATURE " + pushTransactionRequest.getSignatures().get(0));
+            try {
+                byte[] test = this.getSigDigest(this.transaction.getContextFreeData());
+                String hex = Hex.toHexString(test);
+                String test2 = hex;
+            } catch (NoSuchAlgorithmException err) {
+                throw new Error("Got messed up");
+            }
+
             return this.rpcProvider.pushTransaction(pushTransactionRequest);
         } catch (PushTransactionRpcError pushTransactionRpcError) {
             throw new TransactionPushTransactionError(
                     ErrorConstants.TRANSACTION_PROCESSOR_RPC_PUSH_TRANSACTION,
                     pushTransactionRpcError);
         }
+    }
+
+    public byte[] getSigDigest(List<String> contextFreeData) throws NoSuchAlgorithmException {
+        EOSByteWriter eosByteWriter = new EOSByteWriter(10240);
+//        byte[] chainIDBytes = Hex.decode(chainID.getBytes());
+//
+//        // Reverse the chain ID Bytes to Little Endian.
+//        byte[] temp = new byte[chainIDBytes.length] ;
+//        for ( int i = 0 ; i < chainIDBytes.length ; i++ ){
+//            temp[temp.length - i - 1] = chainIDBytes[i] ;
+//        }
+//        chainIDBytes = temp;
+
+        //eosByteWriter.putBytes(chainIDBytes, chainIDBytes.length);
+        //transaction.pack(eosByteWriter);
+
+        // Context Free Data
+        if ( contextFreeData.size() > 0 ) {
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            for (String str : contextFreeData) {
+                sha256.update(str.getBytes());
+            }
+            byte[] cfdHash = sha256.digest();
+            eosByteWriter.putBytes(cfdHash, cfdHash.length); // CFD Hash
+        } else {
+            eosByteWriter.putBytes(new byte[32], 32);
+        }
+
+        byte[] packedBytes = eosByteWriter.toBytes();
+
+        System.out.println ( "Data to Sign: " + Hex.toHexString(packedBytes));
+
+        // Digest the packed bytes
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        byte[] digest = sha256.digest(packedBytes);
+
+        System.out.println ( "Digest : " + Hex.toHexString(digest));
+        return digest;
     }
 
     /**

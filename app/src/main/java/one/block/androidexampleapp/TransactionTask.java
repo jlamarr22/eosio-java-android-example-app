@@ -8,9 +8,12 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
+import org.bitcoinj.core.Sha256Hash;
+import org.bouncycastle.util.encoders.Hex;
 import org.jetbrains.annotations.NotNull;
 
 import one.block.androidexampleapp.ErrorUtils;
+import one.block.androidexampleapp.testImplementation.SoftKeySignatureProviderImplTest;
 import one.block.androidexampleapp.testImplementation.TransactionProcessorTest;
 import one.block.androidexampleapp.testImplementation.TransactionSessionTest;
 import one.block.eosiojava.error.serializationProvider.SerializationProviderError;
@@ -123,10 +126,10 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         IABIProvider abiProvider = new ABIProviderImpl(rpcProvider, serializationProvider);
 
         // Creating Signature provider
-        ISignatureProvider signatureProvider = new SoftKeySignatureProviderImpl();
+        ISignatureProvider signatureProvider = new SoftKeySignatureProviderImplTest();
 
         try {
-            ((SoftKeySignatureProviderImpl) signatureProvider).importKey(privateKey);
+            ((SoftKeySignatureProviderImplTest) signatureProvider).importKey(privateKey);
         } catch (ImportKeyError importKeyError) {
             importKeyError.printStackTrace();
             this.publishProgress(Boolean.toString(false), importKeyError.getMessage());
@@ -151,11 +154,14 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
                 "\"host\": \"" + host + "\"\n" +
                 "}";
 
+        ArrayList<String> cfd = new ArrayList<String>();
+        cfd.add("61");
+
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
         try {
             this.publishProgress("Preparing Transaction...");
-            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), "");
+            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), cfd);
 
             // Sign and broadcast the transaction.
             this.publishProgress("Signing and Broadcasting Transaction...");
