@@ -27,7 +27,7 @@ public class TransactionSessionTest {
      *     Responsible for communicate with EOSIO chain
      */
     @NotNull
-    private IRPCProvider rpcProvider;
+    private EosioJavaRpcProviderImplTest rpcProvider;
 
     /**
      * ABI Provider to be used as a reference on {@link TransactionProcessorTest} object
@@ -55,7 +55,7 @@ public class TransactionSessionTest {
      */
     public TransactionSessionTest(
             @NotNull ISerializationProvider serializationProvider,
-            @NotNull IRPCProvider rpcProvider, @NotNull IABIProvider abiProvider,
+            @NotNull EosioJavaRpcProviderImplTest rpcProvider, @NotNull IABIProvider abiProvider,
             @NotNull ISignatureProvider signatureProvider) {
         this.serializationProvider = serializationProvider;
         this.rpcProvider = rpcProvider;

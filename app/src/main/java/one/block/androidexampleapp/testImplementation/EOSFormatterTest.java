@@ -832,7 +832,8 @@ public class EOSFormatterTest {
             throw new EOSFormatterError(ErrorConstants.EMPTY_INPUT_PREPARE_SERIALIZIED_TRANS_FOR_SIGNING);
         }
 
-        String signableTransaction = chainId + serializedTransaction.substring(0, serializedTransaction.length() - 2) + "d029fa3a95e174a19934857f535eb9427d967218a36ea014b70ad704bc6c8d1c";
+        String signableTransaction = chainId + serializedTransaction + "e8b629418b770c5f4c92c016d149ebef7563e40858fc04b961c7347b3652674a";
+        //String signableTransaction = chainId + serializedTransaction + Hex.toHexString(new byte[32]);
         if (signableTransaction.length() <= MINIMUM_SIGNABLE_TRANSACTION_LENGTH) {
             throw new EOSFormatterError(String.format(ErrorConstants.INVALID_INPUT_SIGNABLE_TRANS_LENGTH_EXTRACT_SERIALIZIED_TRANS_FROM_SIGNABLE, MINIMUM_SIGNABLE_TRANSACTION_LENGTH));
         }

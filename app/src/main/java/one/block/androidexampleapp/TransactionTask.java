@@ -2,6 +2,7 @@ package one.block.androidexampleapp;
 
 import android.os.AsyncTask;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,9 +14,11 @@ import org.bouncycastle.util.encoders.Hex;
 import org.jetbrains.annotations.NotNull;
 
 import one.block.androidexampleapp.ErrorUtils;
+import one.block.androidexampleapp.testImplementation.EosioJavaRpcProviderImplTest;
 import one.block.androidexampleapp.testImplementation.SoftKeySignatureProviderImplTest;
 import one.block.androidexampleapp.testImplementation.TransactionProcessorTest;
 import one.block.androidexampleapp.testImplementation.TransactionSessionTest;
+import one.block.eosiojava.error.EosioError;
 import one.block.eosiojava.error.serializationProvider.SerializationProviderError;
 import one.block.eosiojava.error.session.TransactionPrepareError;
 import one.block.eosiojava.error.session.TransactionSignAndBroadCastError;
@@ -113,9 +116,9 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         }
 
         // Creating RPC Provider
-        IRPCProvider rpcProvider;
+        EosioJavaRpcProviderImplTest rpcProvider;
         try {
-            rpcProvider = new EosioJavaRpcProviderImpl(nodeUrl, ENABLE_NETWORK_LOG);
+            rpcProvider = new EosioJavaRpcProviderImplTest(nodeUrl, ENABLE_NETWORK_LOG);
         } catch (EosioJavaRpcProviderInitializerError eosioJavaRpcProviderInitializerError) {
             eosioJavaRpcProviderInitializerError.printStackTrace();
             this.publishProgress(Boolean.toString(false), eosioJavaRpcProviderInitializerError.getMessage());
@@ -172,12 +175,12 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
             // Happens if preparing transaction unsuccessful
             transactionPrepareError.printStackTrace();
             this.publishProgress(Boolean.toString(false), transactionPrepareError.getLocalizedMessage());
-        } catch (TransactionSignAndBroadCastError transactionSignAndBroadCastError) {
+        } catch (TransactionSignAndBroadCastError | NoSuchAlgorithmException transactionSignAndBroadCastError) {
             // Happens if Sign transaction or broadcast transaction unsuccessful.
             transactionSignAndBroadCastError.printStackTrace();
 
             // try to get backend error if the error come from backend
-            RPCResponseError rpcResponseError = ErrorUtils.getBackendError(transactionSignAndBroadCastError);
+            RPCResponseError rpcResponseError = ErrorUtils.getBackendError((EosioError) transactionSignAndBroadCastError);
             if (rpcResponseError != null) {
                 String backendErrorMessage = ErrorUtils.getBackendErrorMessageFromResponse(rpcResponseError);
                 this.publishProgress(Boolean.toString(false), backendErrorMessage);

@@ -102,7 +102,7 @@ public class TransactionProcessorTest {
      * Reference of RPC Provider from TransactionSession
      */
     @NotNull
-    private IRPCProvider rpcProvider;
+    private EosioJavaRpcProviderImplTest rpcProvider;
 
     /**
      * Reference of ABI Provider from TransactionSession
@@ -211,7 +211,7 @@ public class TransactionProcessorTest {
      */
     public TransactionProcessorTest(
             @NotNull ISerializationProvider serializationProvider,
-            @NotNull IRPCProvider rpcProvider,
+            @NotNull EosioJavaRpcProviderImplTest rpcProvider,
             @NotNull IABIProvider abiProvider,
             @NotNull ISignatureProvider signatureProvider) {
         this.serializationProvider = serializationProvider;
@@ -232,7 +232,7 @@ public class TransactionProcessorTest {
      */
     public TransactionProcessorTest(
             @NotNull ISerializationProvider serializationProvider,
-            @NotNull IRPCProvider rpcProvider,
+            @NotNull EosioJavaRpcProviderImplTest rpcProvider,
             @NotNull IABIProvider abiProvider,
             @NotNull ISignatureProvider signatureProvider,
             @NotNull TransactionTest transaction) throws TransactionProcessorConstructorInputError {
@@ -457,7 +457,7 @@ public class TransactionProcessorTest {
      *          - An error has been returned from the blockchain. Cause: {@link TransactionPushTransactionError}
      */
     @NotNull
-    public PushTransactionResponse broadcast() throws TransactionBroadCastError {
+    public PushTransactionResponse broadcast() throws TransactionBroadCastError, NoSuchAlgorithmException {
         if (this.serializedTransaction == null || this.serializedTransaction.isEmpty()) {
             throw new TransactionBroadCastError(
                     ErrorConstants.TRANSACTION_PROCESSOR_BROADCAST_SERIALIZED_TRANSACTION_EMPTY);
@@ -468,8 +468,8 @@ public class TransactionProcessorTest {
                     ErrorConstants.TRANSACTION_PROCESSOR_BROADCAST_SIGN_EMPTY);
         }
 
-        PushTransactionRequest pushTransactionRequest = new PushTransactionRequest(this.signatures,
-                0, "010161", this.serializedTransaction);
+        PushTransactionRequestTest pushTransactionRequest = new PushTransactionRequestTest(this.signatures,
+                0, this.getSigDigest(this.transaction.getContextFreeData()), this.serializedTransaction);
         try {
             return this.pushTransaction(pushTransactionRequest);
         } catch (TransactionPushTransactionError transactionPushTransactionError) {
@@ -496,7 +496,7 @@ public class TransactionProcessorTest {
      *          - An error has been returned from the blockchain. Cause: {@link TransactionPushTransactionError}
      */
     @NotNull
-    public PushTransactionResponse signAndBroadcast() throws TransactionSignAndBroadCastError {
+    public PushTransactionResponse signAndBroadcast() throws TransactionSignAndBroadCastError, NoSuchAlgorithmException {
         EosioTransactionSignatureRequest eosioTransactionSignatureRequest;
         try {
             eosioTransactionSignatureRequest = this.createSignatureRequest();
@@ -521,8 +521,8 @@ public class TransactionProcessorTest {
         }
 
         // Signatures and serializedTransaction are assigned and finalized in getSignature() method
-        PushTransactionRequest pushTransactionRequest = new PushTransactionRequest(this.signatures,
-                0, "00", this.serializedTransaction);
+        PushTransactionRequestTest pushTransactionRequest = new PushTransactionRequestTest(this.signatures,
+                0, this.getSigDigest(this.transaction.getContextFreeData()), this.serializedTransaction);
         try {
             return this.pushTransaction(pushTransactionRequest);
         } catch (TransactionPushTransactionError transactionPushTransactionError) {
@@ -751,7 +751,7 @@ public class TransactionProcessorTest {
      * @return Response from chain
      */
     @NotNull
-    private PushTransactionResponse pushTransaction(PushTransactionRequest pushTransactionRequest)
+    private PushTransactionResponse pushTransaction(PushTransactionRequestTest pushTransactionRequest)
             throws TransactionPushTransactionError {
         try {
             System.out.println("SIGNATURE " + pushTransactionRequest.getSignatures().get(0));
@@ -881,8 +881,10 @@ public class TransactionProcessorTest {
 
 //        AbiEosSerializationObject contextFreeDataSerializationObject =
 //                this.serializeContextFreeData(clonedTransaction.getContextFreeData(), this.chainId, this.abiProvider);
-//
-//        clonedTransaction.setContextFreeData(contextFreeDataSerializationObject.getHex());
+
+        ArrayList<String> strs = new ArrayList<String>();
+        strs.add("010161");
+        clonedTransaction.setContextFreeData(strs);
 
         // Apply serialized actions to current transaction to be used on getRequiredKeys
         // From now, the current transaction keep serialized actions
@@ -893,7 +895,7 @@ public class TransactionProcessorTest {
         try {
             String clonedTransactionToJSON = Utils.getGson(DateFormatter.BACKEND_DATE_PATTERN).toJson(clonedTransaction);
             System.out.println("JSON before: " + clonedTransactionToJSON);
-            _serializedTransaction = this.serializationProvider.serializeTransaction(clonedTransactionToJSON);
+            _serializedTransaction = this.serializeTransactionTest(clonedTransactionToJSON);
             if (_serializedTransaction == null || _serializedTransaction.isEmpty()) {
                 throw new TransactionCreateSignatureRequestSerializationError(
                         ErrorConstants.TRANSACTION_PROCESSOR_SERIALIZE_TRANSACTION_WORKED_BUT_EMPTY_RESULT);
@@ -1030,7 +1032,7 @@ public class TransactionProcessorTest {
                 "                },\n" +
                 "                {\n" +
                 "                    \"name\": \"context_free_data\",\n" +
-                "                    \"type\": \"bytes\"\n" +
+                "                    \"type\": \"bytes[]\"\n" +
                 "                }\n" +
                 "            ]\n" +
                 "        }\n" +
@@ -1164,7 +1166,7 @@ public class TransactionProcessorTest {
                 "                },\n" +
                 "                {\n" +
                 "                    \"name\": \"context_free_data\",\n" +
-                "                    \"type\": \"bytes\"\n" +
+                "                    \"type\": \"bytes[]\"\n" +
                 "                }\n" +
                 "            ]\n" +
                 "        }\n" +

@@ -310,6 +310,8 @@ public class SoftKeySignatureProviderImplTest implements ISignatureProvider {
             }
         }
 
+        //signatures.add("SIG_K1_K3j4UCRk3ARvm6vBGLbo9gTAnc3zN1D1mKjSr4PnXfv12EyYh7Wcex3JfPqNAwBkrCricuMBnRs5qSvBDyyVJLQikwkT7D");
+
         return new EosioTransactionSignatureResponse(serializedTransaction, signatures, null);
     }
 
