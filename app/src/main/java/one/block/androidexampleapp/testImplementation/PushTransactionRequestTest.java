@@ -50,7 +50,7 @@ public class PushTransactionRequestTest {
         this.signatures = signatures;
         this.compression = compression;
         this.packagedContextFreeData = packagedContextFreeData;
-        this.packTrx = packTrx.substring(0, packTrx.length() - packagedContextFreeData.length());
+        this.packTrx = packTrx;//.substring(0, packTrx.length() - packagedContextFreeData.length());
     }
 
     /**

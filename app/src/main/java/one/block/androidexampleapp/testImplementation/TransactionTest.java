@@ -77,13 +77,15 @@ public class TransactionTest extends Transaction {
     public List<String> getContextFreeData() { return contextFreeData; }
 
     public void setContextFreeData(@NotNull List<String> contextFreeData) {
+        contextFreeData.clear();
+        contextFreeData.add("7b226368616c6c656e676572223a202231222c2022686f7374223a202232227d");
         this.contextFreeData = contextFreeData;
     }
 
     // This will need to be updated to be dynamic
     public String serializeFullContextFreeData() {
         String test = "0110" + this.getContextFreeData().get(0);
-        return test;
+        return "01207b226368616c6c656e676572223a202231222c2022686f7374223a202232227d";
         //return "011000000079aa496ba5000000000090316d"; // For now
     }
 }
