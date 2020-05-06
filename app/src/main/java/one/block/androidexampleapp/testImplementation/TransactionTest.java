@@ -102,15 +102,28 @@ public class TransactionTest extends Transaction {
     }
 
     public String getHexContextFreeData() {
-        byte[] bytes = new byte[1 + 33 * this.originalContextFreeData.size()];
+        byte[] bytes = new byte[this.getTotalBytes()];
         bytes[0] = Byte.parseByte(String.format("%02X", this.contextFreeData.size()));
-        bytes[1] = 32;
-        byte[] bytes2 = this.originalContextFreeData.get(0).getBytes();
-        for (int i = 0; i < bytes2.length; i++) {
-            bytes[i + 2] = bytes2[i];
+        int index = 1;
+        for(String cfd : this.originalContextFreeData) {
+            byte[] cfdBytes = cfd.getBytes();
+            bytes[index] = Byte.parseByte(String.valueOf(cfdBytes.length));
+            index++;
+            for (int i = 0; i < cfdBytes.length; i++) {
+                bytes[index] = cfdBytes[i];
+                index++;
+            }
         }
 
         return Hex.toHexString(Sha256Hash.hash(bytes));
+    }
+
+    private Integer getTotalBytes() {
+        int bytes = 1;
+        for(String cfd : this.originalContextFreeData) {
+            bytes += 1 + cfd.getBytes().length;
+        }
+        return bytes;
     }
 }
 
