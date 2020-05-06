@@ -835,27 +835,7 @@ public class EOSFormatterTest {
             throw new EOSFormatterError(ErrorConstants.EMPTY_INPUT_PREPARE_SERIALIZIED_TRANS_FOR_SIGNING);
         }
 
-        byte[] chainBytes = chainId.getBytes();
-        byte[] transactionBytes = serializedTransaction.getBytes();
-        byte[] cfdBytes = Sha256Hash.hash(contextFreeData.getBytes());
-        byte[] destination = new byte[transactionBytes.length + cfdBytes.length];
-        //System.arraycopy(chainBytes, 0, destination, 0, chainBytes.length);
-        System.arraycopy(transactionBytes, 0, destination, 0, transactionBytes.length);
-        System.arraycopy(cfdBytes, 0, destination, transactionBytes.length, cfdBytes.length);
-
-        byte[] cfd = contextFreeData.length() == 0 ? new byte[32] : Sha256Hash.hash(contextFreeData.getBytes());
-        byte[] der = new byte[34];
-        der[0] = 1;
-        der[1] = 32;
-        byte[] bytes = "{\"challenger\": \"1\", \"host\": \"2\"}".getBytes();
-        for (int i = 0; i < bytes.length; i++) {
-            der[i + 2] = bytes[i];
-        }
-
-        //String signableTransaction = chainId + serializedTransaction + "e8b629418b770c5f4c92c016d149ebef7563e40858fc04b961c7347b3652674a";
-        //String signableTransaction = chainId + serializedTransaction.substring(0, serializedTransaction.length() - contextFreeData.length()) + test;
-        String signableTransaction = chainId + serializedTransaction.substring(0, serializedTransaction.length() - contextFreeData.length()) + Hex.toHexString(Sha256Hash.hash(der));
-        //String signableTransaction = chainId + Hex.toHexString(destination);
+        String signableTransaction = chainId + serializedTransaction + contextFreeData;
         if (signableTransaction.length() <= MINIMUM_SIGNABLE_TRANSACTION_LENGTH) {
             throw new EOSFormatterError(String.format(ErrorConstants.INVALID_INPUT_SIGNABLE_TRANS_LENGTH_EXTRACT_SERIALIZIED_TRANS_FROM_SIGNABLE, MINIMUM_SIGNABLE_TRANSACTION_LENGTH));
         }

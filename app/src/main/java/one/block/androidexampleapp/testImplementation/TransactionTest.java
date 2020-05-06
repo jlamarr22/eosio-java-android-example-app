@@ -11,6 +11,7 @@ import one.block.eosiojava.models.rpcProvider.Transaction;
 import one.block.eosiojava.models.rpcProvider.response.GetBlockResponse;
 import one.block.eosiojava.models.rpcProvider.response.GetInfoResponse;
 
+import org.bitcoinj.core.Sha256Hash;
 import org.bouncycastle.util.encoders.Hex;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,6 +23,8 @@ public class TransactionTest extends Transaction {
     @SerializedName("context_free_data")
     @NotNull
     public List<String> contextFreeData;
+
+    public List<String> originalContextFreeData;
 
     /**
      * Instantiates a new Transaction.
@@ -82,13 +85,32 @@ public class TransactionTest extends Transaction {
         }
 
         this.contextFreeData = serializedContextFreeData;
+        this.originalContextFreeData = contextFreeData;
     }
 
     // This will need to be updated to be dynamic
-    public String serializeFullContextFreeData() {
-        String test = String.format("%02X", this.contextFreeData.size());;
-        //String test = "0110" + this.getContextFreeData().get(0);
-        return "01207b226368616c6c656e676572223a202231222c2022686f7374223a202232227d";
+    public String getPackedContextFreeData() {
+        String packedContextFreeData = String.format("%02X", this.contextFreeData.size());
+
+        for(int i = 0; i < this.contextFreeData.size(); i++) {
+            String cfd = this.contextFreeData.get(i);
+            packedContextFreeData += String.format("%02X", cfd.length() / 2) + cfd;
+        }
+
+        //return "01207b226368616c6c656e676572223a202231222c2022686f7374223a202232227d";
+        return packedContextFreeData;
+    }
+
+    public String getHexContextFreeData() {
+        byte[] der = new byte[34];
+        der[0] = 1;
+        der[1] = 32;
+        byte[] bytes = "{\"challenger\": \"1\", \"host\": \"2\"}".getBytes();
+        for (int i = 0; i < bytes.length; i++) {
+            der[i + 2] = bytes[i];
+        }
+
+        return Hex.toHexString(Sha256Hash.hash(der));
     }
 }
 
