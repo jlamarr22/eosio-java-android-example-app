@@ -130,7 +130,11 @@ public class SoftKeySignatureProviderImplTest implements ISignatureProvider {
         try {
             String test = EOSFormatterTest.prepareSerializedTransactionForSigning(serializedTransaction, eosioTransactionSignatureRequest.getChainId(), eosioTransactionSignatureRequest.getContextFreeData()).toUpperCase();
             message = Hex.decode(test);
-            hashedMessage = Sha256Hash.hash(message);
+            byte[] cfdBytes = eosioTransactionSignatureRequest.getContextFreeData().getBytes();
+            byte[] destination = new byte[message.length + cfdBytes.length];
+            System.arraycopy(message, 0, destination, 0, message.length);
+            System.arraycopy(cfdBytes, 0, destination, message.length, cfdBytes.length);
+            hashedMessage = Sha256Hash.hash(destination);
         } catch (EOSFormatterError eosFormatterError) {
             throw new SignTransactionError(String.format(SoftKeySignatureErrorConstants.SIGN_TRANS_PREPARE_SIGNABLE_TRANS_ERROR, serializedTransaction), eosFormatterError);
         }
@@ -188,6 +192,8 @@ public class SoftKeySignatureProviderImplTest implements ISignatureProvider {
                 ECPrivateKeyParameters parameters = new ECPrivateKeyParameters(privateKeyBI, domainParameters);
                 signer.init(true, parameters);
                 BigInteger[] signatureComponents = signer.generateSignature(hashedMessage);
+                //boolean test = signer.verifySignature(hashedMessage, signatureComponents[0], signatureComponents[1]);
+                //boolean test2 = test;
 
                 try {
                     String signature = EOSFormatterTest.convertRawRandSofSignatureToEOSFormat(signatureComponents[R_INDEX].toString(), signatureComponents[S_INDEX].toString(), message, EOSFormatterTest.convertEOSPublicKeyToPEMFormat(inputPublicKey));

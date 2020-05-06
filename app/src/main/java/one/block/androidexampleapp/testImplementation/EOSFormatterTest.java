@@ -6,6 +6,9 @@ import com.google.common.primitives.Bytes;
 import java.io.CharArrayReader;
 import java.io.Reader;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import one.block.eosiojava.enums.AlgorithmEmployed;
 import one.block.eosiojava.error.ErrorConstants;
@@ -832,10 +835,12 @@ public class EOSFormatterTest {
             throw new EOSFormatterError(ErrorConstants.EMPTY_INPUT_PREPARE_SERIALIZIED_TRANS_FOR_SIGNING);
         }
 
-        String cfd = contextFreeData.length() == 0 ? Hex.toHexString(new byte[32]) : contextFreeData;
+        byte[] cfd = contextFreeData.length() == 0 ? new byte[32] : Sha256Hash.hash(contextFreeData.getBytes());
+        String test = Hex.toHexString(cfd);
 
         //String signableTransaction = chainId + serializedTransaction + "e8b629418b770c5f4c92c016d149ebef7563e40858fc04b961c7347b3652674a";
-        String signableTransaction = chainId + serializedTransaction.substring(0, serializedTransaction.length() - contextFreeData.length());// + cfd;
+        //String signableTransaction = chainId + serializedTransaction.substring(0, serializedTransaction.length() - contextFreeData.length()) + test;
+        String signableTransaction = chainId + serializedTransaction.substring(0, serializedTransaction.length() - contextFreeData.length());
         if (signableTransaction.length() <= MINIMUM_SIGNABLE_TRANSACTION_LENGTH) {
             throw new EOSFormatterError(String.format(ErrorConstants.INVALID_INPUT_SIGNABLE_TRANS_LENGTH_EXTRACT_SERIALIZIED_TRANS_FROM_SIGNABLE, MINIMUM_SIGNABLE_TRANSACTION_LENGTH));
         }
