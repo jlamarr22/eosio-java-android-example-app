@@ -103,7 +103,7 @@ public class TransactionTest extends Transaction {
 
     public String getHexContextFreeData() {
         byte[] bytes = new byte[this.getTotalBytes()];
-        bytes[0] = Byte.parseByte(String.format("%02X", this.contextFreeData.size()));
+        bytes[0] = Byte.parseByte(String.valueOf(this.contextFreeData.size()));
         int index = 1;
         for(String cfd : this.originalContextFreeData) {
             byte[] cfdBytes = cfd.getBytes();

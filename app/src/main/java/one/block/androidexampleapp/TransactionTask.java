@@ -163,6 +163,16 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         ArrayList<String> cfd = new ArrayList<String>();
         cfd.add(contextFreeData);
         cfd.add(contextFreeData2);
+        cfd.add("another");
+        cfd.add(contextFreeData);
+        cfd.add(contextFreeData2);
+        cfd.add("another");
+        cfd.add(contextFreeData);
+        cfd.add(contextFreeData2);
+        cfd.add("another");
+        cfd.add(contextFreeData);
+        cfd.add(contextFreeData2);
+        cfd.add("another");
 
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
