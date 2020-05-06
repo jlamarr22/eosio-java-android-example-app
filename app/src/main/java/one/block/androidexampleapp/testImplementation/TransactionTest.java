@@ -102,15 +102,15 @@ public class TransactionTest extends Transaction {
     }
 
     public String getHexContextFreeData() {
-        byte[] der = new byte[34];
-        der[0] = 1;
-        der[1] = 32;
-        byte[] bytes = "{\"challenger\": \"1\", \"host\": \"2\"}".getBytes();
-        for (int i = 0; i < bytes.length; i++) {
-            der[i + 2] = bytes[i];
+        byte[] bytes = new byte[1 + 33 * this.originalContextFreeData.size()];
+        bytes[0] = Byte.parseByte(String.format("%02X", this.contextFreeData.size()));
+        bytes[1] = 32;
+        byte[] bytes2 = this.originalContextFreeData.get(0).getBytes();
+        for (int i = 0; i < bytes2.length; i++) {
+            bytes[i + 2] = bytes2[i];
         }
 
-        return Hex.toHexString(Sha256Hash.hash(der));
+        return Hex.toHexString(Sha256Hash.hash(bytes));
     }
 }
 
