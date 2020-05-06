@@ -233,7 +233,7 @@ public class SoftKeySignatureProviderImplTest implements ISignatureProvider {
         byte[] hashedMessage;
 
         try {
-            message = Hex.decode(EOSFormatterTest.prepareSerializedTransactionForSigning(serializedTransaction, eosioTransactionSignatureRequest.getChainId(), "07a86eb52d88292ce89bf90ec613ec308e22b18e45817ff459ec16d775e6fe2c").toUpperCase());
+            message = Hex.decode(EOSFormatterTest.prepareSerializedTransactionForSigning(serializedTransaction, eosioTransactionSignatureRequest.getChainId(), "").toUpperCase());
             hashedMessage = Sha256Hash.hash(message);
         } catch (EOSFormatterError eosFormatterError) {
             throw new SignTransactionError(String.format(SoftKeySignatureErrorConstants.SIGN_TRANS_PREPARE_SIGNABLE_TRANS_ERROR, serializedTransaction), eosFormatterError);

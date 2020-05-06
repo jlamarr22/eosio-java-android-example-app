@@ -26,7 +26,7 @@ public class PushTransactionRequestTest {
      * Context free data in hex
      */
     @SerializedName("packed_context_free_data")
-    private byte[] packagedContextFreeData;
+    private String packagedContextFreeData;
 
     /**
      * The Pack Transaction (Serialized Transaction).
@@ -46,11 +46,11 @@ public class PushTransactionRequestTest {
      * of {@link one.block.eosiojava.models.rpcProvider.Transaction}.
      */
     public PushTransactionRequestTest(@NotNull List<String> signatures, int compression,
-                                  byte[] packagedContextFreeData, @NotNull String packTrx) {
+                                  String packagedContextFreeData, @NotNull String packTrx) {
         this.signatures = signatures;
         this.compression = compression;
         this.packagedContextFreeData = packagedContextFreeData;
-        this.packTrx = packTrx;
+        this.packTrx = packTrx.substring(0, packTrx.length() - packagedContextFreeData.length());
     }
 
     /**
@@ -95,7 +95,7 @@ public class PushTransactionRequestTest {
      *
      * @return the packaged context free data in hex.
      */
-    public byte[] getPackagedContextFreeData() {
+    public String getPackagedContextFreeData() {
         return packagedContextFreeData;
     }
 
@@ -104,7 +104,7 @@ public class PushTransactionRequestTest {
      *
      * @param packagedContextFreeData the packaged context free data in hex.
      */
-    public void setPackagedContextFreeData(byte[] packagedContextFreeData) {
+    public void setPackagedContextFreeData(String packagedContextFreeData) {
         this.packagedContextFreeData = packagedContextFreeData;
     }
 

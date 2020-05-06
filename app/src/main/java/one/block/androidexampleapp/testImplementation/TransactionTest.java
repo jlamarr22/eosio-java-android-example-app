@@ -10,6 +10,8 @@ import one.block.eosiojava.models.rpcProvider.Action;
 import one.block.eosiojava.models.rpcProvider.Transaction;
 import one.block.eosiojava.models.rpcProvider.response.GetBlockResponse;
 import one.block.eosiojava.models.rpcProvider.response.GetInfoResponse;
+
+import org.bouncycastle.util.encoders.Hex;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -76,6 +78,13 @@ public class TransactionTest extends Transaction {
 
     public void setContextFreeData(@NotNull List<String> contextFreeData) {
         this.contextFreeData = contextFreeData;
+    }
+
+    // This will need to be updated to be dynamic
+    public String serializeFullContextFreeData() {
+        String test = "0110" + this.getContextFreeData().get(0);
+        return test;
+        //return "011000000079aa496ba5000000000090316d"; // For now
     }
 }
 

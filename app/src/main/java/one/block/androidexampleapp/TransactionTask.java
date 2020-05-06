@@ -129,7 +129,7 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         IABIProvider abiProvider = new ABIProviderImpl(rpcProvider, serializationProvider);
 
         // Creating Signature provider
-        ISignatureProvider signatureProvider = new SoftKeySignatureProviderImplTest();
+        SoftKeySignatureProviderImplTest signatureProvider = new SoftKeySignatureProviderImplTest();
 
         try {
             ((SoftKeySignatureProviderImplTest) signatureProvider).importKey(privateKey);
@@ -152,10 +152,12 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 
         this.publishProgress("jsonData: " + jsonData);
 
-        String contextFreeData = "{\n" +
-                "\"challenger\": \"" + challenger + "\",\n" +
-                "\"host\": \"" + host + "\"\n" +
-                "}";
+//        String contextFreeData = "{\n" +
+//                "\"challenger\": \"" + challenger + "\",\n" +
+//                "\"host\": \"" + host + "\"\n" +
+//                "}";
+
+        String contextFreeData = "{\"challenger\": \"1\", \"host\": \"2\"}";
 
         ArrayList<String> cfd = new ArrayList<String>();
         cfd.add("61");
@@ -164,7 +166,7 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
         try {
             this.publishProgress("Preparing Transaction...");
-            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), cfd);
+            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), Collections.singletonList(contextFreeData));
 
             // Sign and broadcast the transaction.
             this.publishProgress("Signing and Broadcasting Transaction...");
@@ -175,7 +177,7 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
             // Happens if preparing transaction unsuccessful
             transactionPrepareError.printStackTrace();
             this.publishProgress(Boolean.toString(false), transactionPrepareError.getLocalizedMessage());
-        } catch (TransactionSignAndBroadCastError | NoSuchAlgorithmException transactionSignAndBroadCastError) {
+        } catch (TransactionSignAndBroadCastError transactionSignAndBroadCastError) {
             // Happens if Sign transaction or broadcast transaction unsuccessful.
             transactionSignAndBroadCastError.printStackTrace();
 
