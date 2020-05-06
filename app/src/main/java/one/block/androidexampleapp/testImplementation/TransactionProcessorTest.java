@@ -818,15 +818,15 @@ public class TransactionProcessorTest {
             }
         }
 
-        List<String> cfd = clonedTransaction.getContextFreeData();
-        ArrayList<String> hexedCfd = new ArrayList<String>();
-
-        for (int i = 0; i < cfd.size(); i++) {
-            AbiEosSerializationObject contextFreeDataSerializationObject = this.serializeContextFreeData(cfd.get(i), this.chainId, this.abiProvider);
-            hexedCfd.add(contextFreeDataSerializationObject.getHex());
-        }
-
-        clonedTransaction.setContextFreeData(hexedCfd);
+//        List<String> cfd = clonedTransaction.getContextFreeData();
+//        ArrayList<String> hexedCfd = new ArrayList<String>();
+//
+//        for (int i = 0; i < cfd.size(); i++) {
+//            AbiEosSerializationObject contextFreeDataSerializationObject = this.serializeContextFreeData(cfd.get(i), this.chainId, this.abiProvider);
+//            hexedCfd.add(contextFreeDataSerializationObject.getHex());
+//        }
+//
+//        clonedTransaction.setContextFreeData(hexedCfd);
 
         //HexContextFreeData = contextFreeDataSerializationObject.getHex();
         //clonedTransaction.setContextFreeData(null);

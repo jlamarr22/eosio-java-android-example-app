@@ -130,11 +130,7 @@ public class SoftKeySignatureProviderImplTest implements ISignatureProvider {
         try {
             String test = EOSFormatterTest.prepareSerializedTransactionForSigning(serializedTransaction, eosioTransactionSignatureRequest.getChainId(), eosioTransactionSignatureRequest.getContextFreeData()).toUpperCase();
             message = Hex.decode(test);
-            byte[] cfdBytes = eosioTransactionSignatureRequest.getContextFreeData().getBytes();
-            byte[] destination = new byte[message.length + cfdBytes.length];
-            System.arraycopy(message, 0, destination, 0, message.length);
-            System.arraycopy(cfdBytes, 0, destination, message.length, cfdBytes.length);
-            hashedMessage = Sha256Hash.hash(destination);
+            hashedMessage = Sha256Hash.hash(message);
         } catch (EOSFormatterError eosFormatterError) {
             throw new SignTransactionError(String.format(SoftKeySignatureErrorConstants.SIGN_TRANS_PREPARE_SIGNABLE_TRANS_ERROR, serializedTransaction), eosFormatterError);
         }

@@ -45,9 +45,7 @@ public class TransactionTest extends Transaction {
                        @NotNull List<Action> actions, @NotNull List<String> transactionExtensions,
                        @NotNull List<String> contextFreeData) {
         super(expiration, refBlockNum, refBlockPrefix, maxNetUsageWords, maxCpuUsageMs, delaySec, contextFreeActions, actions, transactionExtensions);
-        //this.contextFreeData = new String[] { "41424344", "4142434445" };
-        //this.contextFreeData = "020441424344054142434445";
-        this.contextFreeData = contextFreeData;
+        this.setContextFreeData(contextFreeData);
     }
 
     /**
@@ -77,16 +75,20 @@ public class TransactionTest extends Transaction {
     public List<String> getContextFreeData() { return contextFreeData; }
 
     public void setContextFreeData(@NotNull List<String> contextFreeData) {
-        contextFreeData.clear();
-        contextFreeData.add("7b226368616c6c656e676572223a202231222c2022686f7374223a202232227d");
-        this.contextFreeData = contextFreeData;
+        List<String> serializedContextFreeData = new ArrayList<String>();
+
+        for(String cfd : contextFreeData) {
+            serializedContextFreeData.add(Hex.toHexString(cfd.getBytes()));
+        }
+
+        this.contextFreeData = serializedContextFreeData;
     }
 
     // This will need to be updated to be dynamic
     public String serializeFullContextFreeData() {
-        String test = "0110" + this.getContextFreeData().get(0);
+        String test = String.format("%02X", this.contextFreeData.size());;
+        //String test = "0110" + this.getContextFreeData().get(0);
         return "01207b226368616c6c656e676572223a202231222c2022686f7374223a202232227d";
-        //return "011000000079aa496ba5000000000090316d"; // For now
     }
 }
 
