@@ -22,9 +22,7 @@ import org.jetbrains.annotations.NotNull;
 public class TransactionTest extends Transaction {
     @SerializedName("context_free_data")
     @NotNull
-    public List<String> contextFreeData;
-
-    public List<String> originalContextFreeData;
+    public ContextFreeData contextFreeData;
 
     /**
      * Instantiates a new Transaction.
@@ -48,7 +46,8 @@ public class TransactionTest extends Transaction {
                        @NotNull List<Action> actions, @NotNull List<String> transactionExtensions,
                        @NotNull List<String> contextFreeData) {
         super(expiration, refBlockNum, refBlockPrefix, maxNetUsageWords, maxCpuUsageMs, delaySec, contextFreeActions, actions, transactionExtensions);
-        this.setContextFreeData(contextFreeData);
+        //this.setContextFreeData(contextFreeData);
+        this.contextFreeData = new ContextFreeData(contextFreeData);
     }
 
     /**
@@ -74,59 +73,16 @@ public class TransactionTest extends Transaction {
                 contextFreeActions, actions, transactionExtensions, new ArrayList<String>());
     }
 
-    @NotNull
-    public List<String> getContextFreeData() { return contextFreeData; }
-
-    public void setContextFreeData(@NotNull List<String> contextFreeData) {
-        List<String> serializedContextFreeData = new ArrayList<String>();
-
-        for(String cfd : contextFreeData) {
-            serializedContextFreeData.add(Hex.toHexString(cfd.getBytes()));
-        }
-
-        this.contextFreeData = serializedContextFreeData;
-        this.originalContextFreeData = contextFreeData;
-    }
-
-    // This will need to be updated to be dynamic
     public String getPackedContextFreeData() {
-        String packedContextFreeData = String.format("%02X", this.contextFreeData.size());
-
-        for(int i = 0; i < this.contextFreeData.size(); i++) {
-            String cfd = this.contextFreeData.get(i);
-            packedContextFreeData += String.format("%02X", cfd.length() / 2) + cfd;
-        }
-
-        //return "01207b226368616c6c656e676572223a202231222c2022686f7374223a202232227d";
-        return packedContextFreeData;
+        return this.contextFreeData != null ? this.contextFreeData.getPackedContextFreeData() : "";
     }
 
     public String getHexContextFreeData() {
-        if (this.contextFreeData.size() == 0) {
-            return "";
-        }
-        byte[] bytes = new byte[this.getTotalBytes()];
-        bytes[0] = Byte.parseByte(String.valueOf(this.contextFreeData.size()));
-        int index = 1;
-        for(String cfd : this.originalContextFreeData) {
-            byte[] cfdBytes = cfd.getBytes();
-            bytes[index] = Byte.parseByte(String.valueOf(cfdBytes.length));
-            index++;
-            for (int i = 0; i < cfdBytes.length; i++) {
-                bytes[index] = cfdBytes[i];
-                index++;
-            }
-        }
-
-        return Hex.toHexString(Sha256Hash.hash(bytes));
+        return this.contextFreeData != null ? this.contextFreeData.getHexContextFreeData() : "";
     }
 
-    private Integer getTotalBytes() {
-        int bytes = 1;
-        for(String cfd : this.originalContextFreeData) {
-            bytes += 1 + cfd.getBytes().length;
-        }
-        return bytes;
+    public List<String> getContextFreeData() {
+        return this.contextFreeData != null ? this.contextFreeData.getContextFreeData() : new ArrayList<String>();
     }
 }
 

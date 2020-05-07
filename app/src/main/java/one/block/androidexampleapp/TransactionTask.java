@@ -158,9 +158,13 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 //                "}";
 
         String contextFreeData = "test";
-        String contextFreeData2 = "{\"challenger\": \"test\", \"host\": \"test2\"}";
+        String contextFreeData2 = "{\"some\": \"jsonData\"}";
+        String contextFreeData3 = "!@#$%^&*()_+";
 
         ArrayList<String> cfd = new ArrayList<String>();
+        cfd.add(contextFreeData);
+        cfd.add(contextFreeData2);
+        cfd.add(contextFreeData3);
 //        cfd.add(contextFreeData);
 //        cfd.add(contextFreeData2);
 //        cfd.add("another");
