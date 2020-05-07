@@ -102,6 +102,9 @@ public class TransactionTest extends Transaction {
     }
 
     public String getHexContextFreeData() {
+        if (this.contextFreeData.size() == 0) {
+            return "";
+        }
         byte[] bytes = new byte[this.getTotalBytes()];
         bytes[0] = Byte.parseByte(String.valueOf(this.contextFreeData.size()));
         int index = 1;

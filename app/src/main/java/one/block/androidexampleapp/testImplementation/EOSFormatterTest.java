@@ -830,12 +830,15 @@ public class EOSFormatterTest {
      */
     public static String prepareSerializedTransactionForSigning(@NotNull String serializedTransaction,
                                                                 @NotNull String chainId,
-                                                                @NotNull String contextFreeData) throws EOSFormatterError {
+                                                                @NotNull String serializedContextFreeData) throws EOSFormatterError {
         if (serializedTransaction.isEmpty() || chainId.isEmpty()) {
             throw new EOSFormatterError(ErrorConstants.EMPTY_INPUT_PREPARE_SERIALIZIED_TRANS_FOR_SIGNING);
         }
 
+        String contextFreeData = serializedContextFreeData.length() > 0 ? serializedContextFreeData : Hex.toHexString(new byte[32]);
+
         String signableTransaction = chainId + serializedTransaction + contextFreeData;
+
         if (signableTransaction.length() <= MINIMUM_SIGNABLE_TRANSACTION_LENGTH) {
             throw new EOSFormatterError(String.format(ErrorConstants.INVALID_INPUT_SIGNABLE_TRANS_LENGTH_EXTRACT_SERIALIZIED_TRANS_FROM_SIGNABLE, MINIMUM_SIGNABLE_TRANSACTION_LENGTH));
         }

@@ -173,7 +173,7 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 //        cfd.add(contextFreeData);
 //        cfd.add(contextFreeData2);
 //        cfd.add("another");
-        cfd.add("some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too.");
+        //cfd.add("some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too.");
 
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
