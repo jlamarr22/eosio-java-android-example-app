@@ -81,7 +81,6 @@ import org.jetbrains.annotations.Nullable;
  * - Broadcast Transaction
  */
 public class TransactionProcessorTest {
-    private String HexContextFreeData;
     /**
      * Reference of Serialization Provider from TransactionSession
      */
