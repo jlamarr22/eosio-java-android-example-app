@@ -104,7 +104,6 @@ public class SoftKeySignatureProviderImplTest implements ISignatureProvider {
     }
 
     public @NotNull EosioTransactionSignatureResponse signTransactionTest(@NotNull EosioTransactionSignatureRequestTest eosioTransactionSignatureRequest) throws SignTransactionError {
-
         if (eosioTransactionSignatureRequest.getSigningPublicKeys().isEmpty()) {
             throw new SignTransactionError(SoftKeySignatureErrorConstants.SIGN_TRANS_EMPTY_KEY_LIST);
 
@@ -128,115 +127,7 @@ public class SoftKeySignatureProviderImplTest implements ISignatureProvider {
         byte[] hashedMessage;
 
         try {
-            String test = EOSFormatterTest.prepareSerializedTransactionForSigning(serializedTransaction, eosioTransactionSignatureRequest.getChainId(), eosioTransactionSignatureRequest.getContextFreeData()).toUpperCase();
-            message = Hex.decode(test);
-            hashedMessage = Sha256Hash.hash(message);
-        } catch (EOSFormatterError eosFormatterError) {
-            throw new SignTransactionError(String.format(SoftKeySignatureErrorConstants.SIGN_TRANS_PREPARE_SIGNABLE_TRANS_ERROR, serializedTransaction), eosFormatterError);
-        }
-
-        if (this.keys.isEmpty()) {
-            throw new SignTransactionError(SoftKeySignatureErrorConstants.SIGN_TRANS_NO_KEY_AVAILABLE);
-        }
-
-        List<String> signatures = new ArrayList<>();
-
-        // Getting public key and search for the corresponding private key
-        for (String inputPublicKey : eosioTransactionSignatureRequest.getSigningPublicKeys()) {
-
-            BigInteger privateKeyBI = BigInteger.ZERO;
-            AlgorithmEmployed curve = null;
-
-            try {
-                // Search for corresponding private key
-                for (String key : keys) {
-                    PEMProcessor availableKeyProcessor = new PEMProcessor(key);
-                    //Extract public key in PEM format from inner private key
-                    String innerPublicKeyPEM = availableKeyProcessor.extractPEMPublicKeyFromPrivateKey(DEFAULT_WHETHER_USING_K1_LEGACY_FORMAT);
-
-                    // Convert input public key to PEM format for comparision
-                    String inputPublicKeyPEM = EOSFormatterTest.convertEOSPublicKeyToPEMFormat(inputPublicKey);
-
-                    if (innerPublicKeyPEM.equals(inputPublicKeyPEM)) {
-                        privateKeyBI = new BigInteger(BIG_INTEGER_POSITIVE, availableKeyProcessor.getKeyData());
-                        curve = availableKeyProcessor.getAlgorithm();
-                        break;
-                    }
-                }
-            } catch (EosioError error) {
-                throw new SignTransactionError(String.format(SoftKeySignatureErrorConstants.SIGN_TRANS_SEARCH_KEY_ERROR, inputPublicKey), error);
-            }
-
-            // Throw error if found no private key with input public key
-            //noinspection ConstantConditions
-            if (privateKeyBI.equals(BigInteger.ZERO) || curve == null) {
-                throw new SignTransactionError(String.format(SoftKeySignatureErrorConstants.SIGN_TRANS_KEY_NOT_FOUND, inputPublicKey));
-            }
-
-            for (int i = 0; i < MAX_NOT_CANONICAL_RE_SIGN; i++) {
-                // Sign transaction
-                // Use default constructor to have signature generated with secureRandom, otherwise it would generate same signature for same key all the time
-                ECDSASigner signer = new ECDSASigner();
-
-                ECDomainParameters domainParameters;
-                try {
-                    domainParameters = PEMProcessor.getCurveDomainParameters(curve);
-                } catch (PEMProcessorError processorError) {
-                    throw new SignTransactionError(String.format(SoftKeySignatureErrorConstants.SIGN_TRANS_GET_CURVE_DOMAIN_ERROR, curve.getString()), processorError);
-                }
-
-                ECPrivateKeyParameters parameters = new ECPrivateKeyParameters(privateKeyBI, domainParameters);
-                signer.init(true, parameters);
-                BigInteger[] signatureComponents = signer.generateSignature(hashedMessage);
-                //boolean test = signer.verifySignature(hashedMessage, signatureComponents[0], signatureComponents[1]);
-                //boolean test2 = test;
-
-                try {
-                    String signature = EOSFormatterTest.convertRawRandSofSignatureToEOSFormat(signatureComponents[R_INDEX].toString(), signatureComponents[S_INDEX].toString(), message, EOSFormatterTest.convertEOSPublicKeyToPEMFormat(inputPublicKey));
-                    // Format Signature
-                    signatures.add(signature);
-                    break;
-                } catch (EOSFormatterError eosFormatterError) {
-                    // In theory, Non-canonical error only happened with K1 key
-                    if (eosFormatterError.getCause() instanceof EosFormatterSignatureIsNotCanonicalError && curve == AlgorithmEmployed.SECP256K1) {
-                        // Try to sign again until MAX_NOT_CANONICAL_RE_SIGN is reached or get a canonical signature
-                        continue;
-                    }
-
-                    throw new SignTransactionError(SoftKeySignatureErrorConstants.SIGN_TRANS_FORMAT_SIGNATURE_ERROR, eosFormatterError);
-                }
-            }
-        }
-
-        return new EosioTransactionSignatureResponse(serializedTransaction, signatures, null);
-    }
-
-    @Override
-    public @NotNull EosioTransactionSignatureResponse signTransaction(@NotNull EosioTransactionSignatureRequest eosioTransactionSignatureRequest) throws SignTransactionError {
-        if (eosioTransactionSignatureRequest.getSigningPublicKeys().isEmpty()) {
-            throw new SignTransactionError(SoftKeySignatureErrorConstants.SIGN_TRANS_EMPTY_KEY_LIST);
-
-        }
-
-        if (eosioTransactionSignatureRequest.getChainId().isEmpty()) {
-            throw new SignTransactionError(SoftKeySignatureErrorConstants.SIGN_TRANS_EMPTY_CHAIN_ID);
-        }
-
-        if (eosioTransactionSignatureRequest.getSerializedTransaction().isEmpty()) {
-            throw new SignTransactionError(SoftKeySignatureErrorConstants.SIGN_TRANS_EMPTY_TRANSACTION);
-        }
-
-        // Getting serializedTransaction and preparing signable transaction
-        String serializedTransaction = eosioTransactionSignatureRequest.getSerializedTransaction();
-
-        // This is the un-hashed message which is used to recover public key
-        byte[] message;
-
-        // This is the hashed message which is signed.
-        byte[] hashedMessage;
-
-        try {
-            message = Hex.decode(EOSFormatterTest.prepareSerializedTransactionForSigning(serializedTransaction, eosioTransactionSignatureRequest.getChainId(), "").toUpperCase());
+            message = Hex.decode(EOSFormatterTest.prepareSerializedTransactionForSigning(serializedTransaction, eosioTransactionSignatureRequest.getChainId(), eosioTransactionSignatureRequest.getContextFreeData()).toUpperCase());
             hashedMessage = Sha256Hash.hash(message);
         } catch (EOSFormatterError eosFormatterError) {
             throw new SignTransactionError(String.format(SoftKeySignatureErrorConstants.SIGN_TRANS_PREPARE_SIGNABLE_TRANS_ERROR, serializedTransaction), eosFormatterError);
@@ -316,6 +207,11 @@ public class SoftKeySignatureProviderImplTest implements ISignatureProvider {
         //signatures.add("SIG_K1_K3j4UCRk3ARvm6vBGLbo9gTAnc3zN1D1mKjSr4PnXfv12EyYh7Wcex3JfPqNAwBkrCricuMBnRs5qSvBDyyVJLQikwkT7D");
 
         return new EosioTransactionSignatureResponse(serializedTransaction, signatures, null);
+    }
+
+    @Override
+    public @NotNull EosioTransactionSignatureResponse signTransaction(@NotNull EosioTransactionSignatureRequest eosioTransactionSignatureRequest) throws SignTransactionError {
+        return null;
     }
 
     /**
