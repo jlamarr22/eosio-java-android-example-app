@@ -2,8 +2,6 @@ package one.block.androidexampleapp.testImplementation.serialization;
 
 import java.util.List;
 
-import one.block.androidexampleapp.testImplementation.DeserializeContextFreeDataError;
-import one.block.androidexampleapp.testImplementation.SerializeContextFreeDataError;
 import one.block.eosiojava.error.serializationProvider.DeserializeAbiError;
 import one.block.eosiojava.error.serializationProvider.DeserializeError;
 import one.block.eosiojava.error.serializationProvider.DeserializeTransactionError;

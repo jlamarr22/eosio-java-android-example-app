@@ -1,4 +1,4 @@
-package one.block.androidexampleapp.testImplementation;
+package one.block.androidexampleapp.testImplementation.rpc;
 //
 // Copyright © 2017-2019 block.one.
 //

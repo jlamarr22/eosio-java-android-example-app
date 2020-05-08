@@ -1,4 +1,4 @@
-package one.block.androidexampleapp.testImplementation;
+package one.block.androidexampleapp.testImplementation.rpc;
 
 import com.google.gson.Gson;
 
@@ -28,11 +28,9 @@ import one.block.eosiojava.models.rpcProvider.response.GetRawAbiResponse;
 import one.block.eosiojava.models.rpcProvider.response.GetRequiredKeysResponse;
 import one.block.eosiojava.models.rpcProvider.response.PushTransactionResponse;
 import one.block.eosiojava.models.rpcProvider.response.RPCResponseError;
-import one.block.eosiojavarpcprovider.BuildConfig;
 import one.block.eosiojavarpcprovider.error.EosioJavaRpcErrorConstants;
 import one.block.eosiojavarpcprovider.error.EosioJavaRpcProviderCallError;
 import one.block.eosiojavarpcprovider.error.EosioJavaRpcProviderInitializerError;
-import one.block.eosiojavarpcprovider.implementations.IEosioJavaRpcProviderApi;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;

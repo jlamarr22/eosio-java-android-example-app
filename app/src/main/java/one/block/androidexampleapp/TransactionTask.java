@@ -8,7 +8,8 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
-import one.block.androidexampleapp.testImplementation.AbiProviderImplTest;
+import one.block.androidexampleapp.testImplementation.abi.AbiProviderImplTest;
+import one.block.androidexampleapp.testImplementation.signature.SoftKeySignatureProviderImplTest;
 import one.block.androidexampleapp.testImplementation.serialization.ISerializationProviderTest;
 import one.block.androidexampleapp.testImplementation.serialization.SerializationProviderImplTest;
 import one.block.androidexampleapp.testImplementation.TransactionProcessorTest;
@@ -19,7 +20,6 @@ import one.block.eosiojava.error.session.TransactionPrepareError;
 import one.block.eosiojava.error.session.TransactionSignAndBroadCastError;
 import one.block.eosiojava.implementations.ABIProviderImpl;
 import one.block.eosiojava.interfaces.IRPCProvider;
-import one.block.eosiojava.interfaces.ISignatureProvider;
 import one.block.eosiojava.models.rpcProvider.Action;
 import one.block.eosiojava.models.rpcProvider.Authorization;
 import one.block.eosiojava.models.rpcProvider.Transaction;
@@ -122,10 +122,10 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         AbiProviderImplTest abiProvider = new AbiProviderImplTest(rpcProvider, serializationProvider);
 
         // Creating Signature provider
-        ISignatureProvider signatureProvider = new SoftKeySignatureProviderImpl();
+        SoftKeySignatureProviderImplTest signatureProvider = new SoftKeySignatureProviderImplTest();
 
         try {
-            ((SoftKeySignatureProviderImpl) signatureProvider).importKey(privateKey);
+            ((SoftKeySignatureProviderImplTest) signatureProvider).importKey(privateKey);
         } catch (ImportKeyError importKeyError) {
             importKeyError.printStackTrace();
             this.publishProgress(Boolean.toString(false), importKeyError.getMessage());
@@ -154,9 +154,9 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
          * TODO:: This needs to be updated once {@link SerializationProviderImplTest#serializeContextFreeData} is completed
          */
         ArrayList<String> cfd = new ArrayList<String>();
-//        String contextFreeData = "test";
-//        String contextFreeData2 = "{\"some\": \"jsonData\"}";
-//        String contextFreeData3 = "!@#$%^&*()_+";
+        String contextFreeData = "test";
+        String contextFreeData2 = "{\"some\": \"jsonData\"}";
+        String contextFreeData3 = "!@#$%^&*()_+";
 //        String contextFreeData4 = "This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length.";
 //
 //        ArrayList<String> cfd = new ArrayList<String>();

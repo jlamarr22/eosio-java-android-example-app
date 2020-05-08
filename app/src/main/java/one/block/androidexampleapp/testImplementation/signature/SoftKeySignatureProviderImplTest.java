@@ -1,4 +1,4 @@
-package one.block.androidexampleapp.testImplementation;
+package one.block.androidexampleapp.testImplementation.signature;
 
 
 import one.block.eosiojava.enums.AlgorithmEmployed;

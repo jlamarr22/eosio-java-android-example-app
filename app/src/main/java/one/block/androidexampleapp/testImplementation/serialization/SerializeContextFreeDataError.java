@@ -1,4 +1,4 @@
-package one.block.androidexampleapp.testImplementation;
+package one.block.androidexampleapp.testImplementation.serialization;
 
 import java.util.List;
 

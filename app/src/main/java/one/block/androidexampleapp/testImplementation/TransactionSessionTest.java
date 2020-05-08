@@ -1,6 +1,8 @@
 package one.block.androidexampleapp.testImplementation;
 
+import one.block.androidexampleapp.testImplementation.abi.AbiProviderImplTest;
 import one.block.androidexampleapp.testImplementation.serialization.ISerializationProviderTest;
+import one.block.androidexampleapp.testImplementation.signature.SoftKeySignatureProviderImplTest;
 import one.block.eosiojava.error.session.TransactionProcessorConstructorInputError;
 import one.block.eosiojava.interfaces.IABIProvider;
 import one.block.eosiojava.interfaces.IRPCProvider;
@@ -43,7 +45,7 @@ public class TransactionSessionTest {
      *     Responsible for managing keys, create signature to make transaction to EOSIO chain
      */
     @NotNull
-    private ISignatureProvider signatureProvider;
+    private SoftKeySignatureProviderImplTest signatureProvider;
 
     /**
      * Initialize TransactionSession object which acts like a factory to create {@link TransactionProcessorTest} object from providers instances.
@@ -56,7 +58,7 @@ public class TransactionSessionTest {
     public TransactionSessionTest(
             @NotNull ISerializationProviderTest serializationProvider,
             @NotNull IRPCProvider rpcProvider, @NotNull AbiProviderImplTest abiProvider,
-            @NotNull ISignatureProvider signatureProvider) {
+            @NotNull SoftKeySignatureProviderImplTest signatureProvider) {
         this.serializationProvider = serializationProvider;
         this.rpcProvider = rpcProvider;
         this.abiProvider = abiProvider;

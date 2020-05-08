@@ -1,11 +1,11 @@
 package one.block.androidexampleapp.testImplementation.serialization;
 
+import org.bitcoinj.core.Sha256Hash;
+import org.bouncycastle.util.encoders.Hex;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import one.block.androidexampleapp.testImplementation.DeserializeContextFreeDataError;
-import one.block.androidexampleapp.testImplementation.SerializeContextFreeDataError;
-import one.block.androidexampleapp.testImplementation.serialization.ISerializationProviderTest;
 import one.block.eosiojava.error.serializationProvider.SerializationProviderError;
 import one.block.eosiojavaabieosserializationprovider.AbiEosSerializationProviderImpl;
 
@@ -26,6 +26,38 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
 
     @Override
     public String serializeContextFreeData(List<String> contextFreeData) throws SerializeContextFreeDataError {
-        return "";
+        if (contextFreeData.size() == 0) {
+            return "";
+        }
+
+        return this.getHexContextFreeData(contextFreeData);
+    }
+
+    public String getHexContextFreeData(List<String> contextFreeData) {
+        if (contextFreeData.size() == 0) {
+            return "";
+        }
+        byte[] bytes = new byte[this.getTotalBytes(contextFreeData)];
+        bytes[0] = Byte.parseByte(String.valueOf(contextFreeData.size()));
+        int index = 1;
+        for(String cfd : contextFreeData) {
+            byte[] cfdBytes = cfd.getBytes();
+            bytes[index] = Byte.parseByte(String.valueOf(cfdBytes.length));
+            index++;
+            for (int i = 0; i < cfdBytes.length; i++) {
+                bytes[index] = cfdBytes[i];
+                index++;
+            }
+        }
+
+        return Hex.toHexString(Sha256Hash.hash(bytes));
+    }
+
+    private Integer getTotalBytes(List<String> contextFreeData) {
+        int bytes = 1;
+        for(String cfd : contextFreeData) {
+            bytes += 1 + cfd.getBytes().length;
+        }
+        return bytes;
     }
 }

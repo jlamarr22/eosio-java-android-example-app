@@ -8,7 +8,11 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import one.block.androidexampleapp.testImplementation.abi.AbiProviderImplTest;
 import one.block.androidexampleapp.testImplementation.serialization.ISerializationProviderTest;
+import one.block.androidexampleapp.testImplementation.serialization.SerializeContextFreeDataError;
+import one.block.androidexampleapp.testImplementation.signature.EosioTransactionSignatureRequestTest;
+import one.block.androidexampleapp.testImplementation.signature.SoftKeySignatureProviderImplTest;
 import one.block.eosiojava.error.ErrorConstants;
 import one.block.eosiojava.error.abiProvider.GetAbiError;
 import one.block.eosiojava.error.rpcProvider.GetBlockRpcError;
@@ -44,7 +48,6 @@ import one.block.eosiojava.error.signatureProvider.SignatureProviderError;
 import one.block.eosiojava.interfaces.IABIProvider;
 import one.block.eosiojava.interfaces.IRPCProvider;
 import one.block.eosiojava.interfaces.ISerializationProvider;
-import one.block.eosiojava.interfaces.ISignatureProvider;
 import one.block.eosiojava.models.AbiEosSerializationObject;
 import one.block.eosiojava.models.EOSIOName;
 import one.block.eosiojava.models.rpcProvider.Action;
@@ -105,7 +108,7 @@ public class TransactionProcessorTest {
      * Reference of Signature Provider from TransactionSession
      */
     @NotNull
-    private ISignatureProvider signatureProvider;
+    private SoftKeySignatureProviderImplTest signatureProvider;
 
     /**
      * Transaction instance that holds all data relating to an EOS Transaction.
@@ -124,7 +127,7 @@ public class TransactionProcessorTest {
      * Check getSignature() flow in "complete workflow" doc for more detail
      */
     @Nullable
-    private Transaction originalTransaction;
+    private TransactionTest originalTransaction;
 
     /**
      * List of signatures used to sign the transaction.  This is populated after the transaction
@@ -211,7 +214,7 @@ public class TransactionProcessorTest {
             @NotNull ISerializationProviderTest serializationProvider,
             @NotNull IRPCProvider rpcProvider,
             @NotNull AbiProviderImplTest abiProvider,
-            @NotNull ISignatureProvider signatureProvider) {
+            @NotNull SoftKeySignatureProviderImplTest signatureProvider) {
         this.serializationProvider = serializationProvider;
         this.rpcProvider = rpcProvider;
         this.abiProvider = abiProvider;
@@ -232,7 +235,7 @@ public class TransactionProcessorTest {
             @NotNull ISerializationProviderTest serializationProvider,
             @NotNull IRPCProvider rpcProvider,
             @NotNull AbiProviderImplTest abiProvider,
-            @NotNull ISignatureProvider signatureProvider,
+            @NotNull SoftKeySignatureProviderImplTest signatureProvider,
             @NotNull TransactionTest transaction) throws TransactionProcessorConstructorInputError {
         this(serializationProvider, rpcProvider, abiProvider, signatureProvider);
         this.transaction = transaction;
@@ -435,7 +438,7 @@ public class TransactionProcessorTest {
      *          - Signing. Cause: {@link TransactionGetSignatureError} or {@link SignatureProviderError}
      */
     public boolean sign() throws TransactionSignError {
-        EosioTransactionSignatureRequest eosioTransactionSignatureRequest;
+        EosioTransactionSignatureRequestTest eosioTransactionSignatureRequest;
         try {
             eosioTransactionSignatureRequest = this.createSignatureRequest();
         } catch (TransactionCreateSignatureRequestError | SerializeContextFreeDataError transactionCreateSignatureRequestError) {
@@ -515,7 +518,7 @@ public class TransactionProcessorTest {
      */
     @NotNull
     public PushTransactionResponse signAndBroadcast() throws TransactionSignAndBroadCastError {
-        EosioTransactionSignatureRequest eosioTransactionSignatureRequest;
+        EosioTransactionSignatureRequestTest eosioTransactionSignatureRequest;
         try {
             eosioTransactionSignatureRequest = this.createSignatureRequest();
         } catch (TransactionCreateSignatureRequestError | SerializeContextFreeDataError transactionCreateSignatureRequestError) {
@@ -611,7 +614,7 @@ public class TransactionProcessorTest {
      * Check createSignatureRequest() flow in "Complete Workflow" document for more details.
      */
     @NotNull
-    private EosioTransactionSignatureRequest createSignatureRequest()
+    private EosioTransactionSignatureRequestTest createSignatureRequest()
             throws TransactionCreateSignatureRequestError, SerializeContextFreeDataError {
         if (this.transaction == null) {
             throw new TransactionCreateSignatureRequestError(
@@ -698,12 +701,12 @@ public class TransactionProcessorTest {
      */
     @NotNull
     private EosioTransactionSignatureResponse getSignature(
-            EosioTransactionSignatureRequest eosioTransactionSignatureRequest)
+            EosioTransactionSignatureRequestTest eosioTransactionSignatureRequest)
             throws TransactionGetSignatureError {
         EosioTransactionSignatureResponse eosioTransactionSignatureResponse;
         try {
             eosioTransactionSignatureResponse = this.signatureProvider
-                    .signTransaction(eosioTransactionSignatureRequest);
+                    .signTransactionTest(eosioTransactionSignatureRequest);
             if (eosioTransactionSignatureResponse.getError() != null) {
                 throw eosioTransactionSignatureResponse.getError();
             }
