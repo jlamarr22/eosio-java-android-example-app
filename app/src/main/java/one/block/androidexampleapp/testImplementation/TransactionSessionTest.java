@@ -1,9 +1,9 @@
 package one.block.androidexampleapp.testImplementation;
 
+import one.block.androidexampleapp.testImplementation.serialization.ISerializationProviderTest;
 import one.block.eosiojava.error.session.TransactionProcessorConstructorInputError;
 import one.block.eosiojava.interfaces.IABIProvider;
 import one.block.eosiojava.interfaces.IRPCProvider;
-import one.block.eosiojava.interfaces.ISerializationProvider;
 import one.block.eosiojava.interfaces.ISignatureProvider;
 
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +19,7 @@ public class TransactionSessionTest {
      *     Responsible for serialization/deserialization between JSON and Hex for communicate with EOSIO chain
      */
     @NotNull
-    private ISerializationProvider serializationProvider;
+    private ISerializationProviderTest serializationProvider;
 
     /**
      * Rpc provider to be used as a reference on {@link TransactionProcessorTest} object
@@ -27,7 +27,7 @@ public class TransactionSessionTest {
      *     Responsible for communicate with EOSIO chain
      */
     @NotNull
-    private EosioJavaRpcProviderImplTest rpcProvider;
+    private IRPCProvider rpcProvider;
 
     /**
      * ABI Provider to be used as a reference on {@link TransactionProcessorTest} object
@@ -35,7 +35,7 @@ public class TransactionSessionTest {
      *     Responsible for managing ABIs for serialization/deserialization
      */
     @NotNull
-    private IABIProvider abiProvider;
+    private AbiProviderImplTest abiProvider;
 
     /**
      * Signature provider to be used as a reference on {@link TransactionProcessorTest} object
@@ -43,7 +43,7 @@ public class TransactionSessionTest {
      *     Responsible for managing keys, create signature to make transaction to EOSIO chain
      */
     @NotNull
-    private SoftKeySignatureProviderImplTest signatureProvider;
+    private ISignatureProvider signatureProvider;
 
     /**
      * Initialize TransactionSession object which acts like a factory to create {@link TransactionProcessorTest} object from providers instances.
@@ -54,9 +54,9 @@ public class TransactionSessionTest {
      * @param signatureProvider signature provider.
      */
     public TransactionSessionTest(
-            @NotNull ISerializationProvider serializationProvider,
-            @NotNull EosioJavaRpcProviderImplTest rpcProvider, @NotNull IABIProvider abiProvider,
-            @NotNull SoftKeySignatureProviderImplTest signatureProvider) {
+            @NotNull ISerializationProviderTest serializationProvider,
+            @NotNull IRPCProvider rpcProvider, @NotNull AbiProviderImplTest abiProvider,
+            @NotNull ISignatureProvider signatureProvider) {
         this.serializationProvider = serializationProvider;
         this.rpcProvider = rpcProvider;
         this.abiProvider = abiProvider;
@@ -94,7 +94,7 @@ public class TransactionSessionTest {
      * @return the serialization provider
      */
     @NotNull
-    public ISerializationProvider getSerializationProvider() {
+    public ISerializationProviderTest getSerializationProvider() {
         return serializationProvider;
     }
 

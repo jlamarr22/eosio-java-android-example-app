@@ -12,70 +12,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ContextFreeData implements Serializable {
-    @SerializedName("context_free_data")
     @NotNull
-    public List<String> contextFreeData;
-
-    @NotNull
-    public List<String> originalContextFreeData;
+    public List<String> rawContextFreeData;
 
     public ContextFreeData(@NotNull List<String> contextFreeData) {
-        this.setContextFreeData(contextFreeData);
+        this.rawContextFreeData = contextFreeData;
     }
 
     @NotNull
-    public List<String> getContextFreeData() { return contextFreeData; }
+    public List<String> getContextFreeData() {
+        return this.rawContextFreeData;
+    }
 
-    public void setContextFreeData(@NotNull List<String> contextFreeData) {
-        List<String> serializedContextFreeData = new ArrayList<String>();
+    @NotNull
+    public List<String> getHexContextFreeData() {
+        List<String> hexedContextFreeData = new ArrayList<String>();
 
-        for(String cfd : contextFreeData) {
-            serializedContextFreeData.add(Hex.toHexString(cfd.getBytes()));
+        for(String cfd : rawContextFreeData) {
+            hexedContextFreeData.add(Hex.toHexString(cfd.getBytes()));
         }
 
-        this.contextFreeData = serializedContextFreeData;
-        this.originalContextFreeData = contextFreeData;
+        return hexedContextFreeData;
     }
 
     public String getPackedContextFreeData() {
-        if (this.contextFreeData.size() == 0) {
+        if (this.rawContextFreeData.size() == 0) {
             return "";
         }
-        String packedContextFreeData = String.format("%02X", this.contextFreeData.size());
+        List<String> hexContextFreeData = this.getHexContextFreeData();
+        String packedContextFreeData = this.getHexPrefix(hexContextFreeData.size());
 
-        for(int i = 0; i < this.contextFreeData.size(); i++) {
-            String cfd = this.contextFreeData.get(i);
-            packedContextFreeData += String.format("%02X", cfd.length() / 2) + cfd;
+        for(int i = 0; i < hexContextFreeData.size(); i++) {
+            String hexData = hexContextFreeData.get(i);
+            packedContextFreeData += this.getHexPrefix(hexData.length() / 2) + hexData;
         }
 
         return packedContextFreeData;
     }
 
-    public String getHexContextFreeData() {
-        if (this.contextFreeData.size() == 0) {
-            return "";
-        }
-        byte[] bytes = new byte[this.getTotalBytes()];
-        bytes[0] = Byte.parseByte(String.valueOf(this.contextFreeData.size()));
-        int index = 1;
-        for(String cfd : this.originalContextFreeData) {
-            byte[] cfdBytes = cfd.getBytes();
-            bytes[index] = Byte.parseByte(String.valueOf(cfdBytes.length));
-            index++;
-            for (int i = 0; i < cfdBytes.length; i++) {
-                bytes[index] = cfdBytes[i];
-                index++;
-            }
-        }
-
-        return Hex.toHexString(Sha256Hash.hash(bytes));
-    }
-
-    private Integer getTotalBytes() {
-        int bytes = 1;
-        for(String cfd : this.originalContextFreeData) {
-            bytes += 1 + cfd.getBytes().length;
-        }
-        return bytes;
+    private String getHexPrefix(int length) {
+        return String.format("%02X", length);
     }
 }

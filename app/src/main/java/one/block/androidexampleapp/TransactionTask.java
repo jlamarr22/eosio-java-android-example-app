@@ -2,20 +2,15 @@ package one.block.androidexampleapp;
 
 import android.os.AsyncTask;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 
-import org.bitcoinj.core.Sha256Hash;
-import org.bouncycastle.util.encoders.Hex;
-import org.jetbrains.annotations.NotNull;
-
-import one.block.androidexampleapp.ErrorUtils;
-import one.block.androidexampleapp.testImplementation.EosioJavaRpcProviderImplTest;
-import one.block.androidexampleapp.testImplementation.SoftKeySignatureProviderImplTest;
+import one.block.androidexampleapp.testImplementation.AbiProviderImplTest;
+import one.block.androidexampleapp.testImplementation.serialization.ISerializationProviderTest;
+import one.block.androidexampleapp.testImplementation.serialization.SerializationProviderImplTest;
 import one.block.androidexampleapp.testImplementation.TransactionProcessorTest;
 import one.block.androidexampleapp.testImplementation.TransactionSessionTest;
 import one.block.eosiojava.error.EosioError;
@@ -23,9 +18,7 @@ import one.block.eosiojava.error.serializationProvider.SerializationProviderErro
 import one.block.eosiojava.error.session.TransactionPrepareError;
 import one.block.eosiojava.error.session.TransactionSignAndBroadCastError;
 import one.block.eosiojava.implementations.ABIProviderImpl;
-import one.block.eosiojava.interfaces.IABIProvider;
 import one.block.eosiojava.interfaces.IRPCProvider;
-import one.block.eosiojava.interfaces.ISerializationProvider;
 import one.block.eosiojava.interfaces.ISignatureProvider;
 import one.block.eosiojava.models.rpcProvider.Action;
 import one.block.eosiojava.models.rpcProvider.Authorization;
@@ -107,18 +100,18 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         this.publishProgress("Transferring " + amount + " to " + toAccount);
 
         // Creating serialization provider
-        ISerializationProvider serializationProvider;
+        ISerializationProviderTest serializationProvider;
         try {
-            serializationProvider = new AbiEosSerializationProviderImpl();
+            serializationProvider = new SerializationProviderImplTest();
         } catch (SerializationProviderError serializationProviderError) {
             serializationProviderError.printStackTrace();
             return null;
         }
 
         // Creating RPC Provider
-        EosioJavaRpcProviderImplTest rpcProvider;
+        IRPCProvider rpcProvider;
         try {
-            rpcProvider = new EosioJavaRpcProviderImplTest(nodeUrl, ENABLE_NETWORK_LOG);
+            rpcProvider = new EosioJavaRpcProviderImpl(nodeUrl, ENABLE_NETWORK_LOG);
         } catch (EosioJavaRpcProviderInitializerError eosioJavaRpcProviderInitializerError) {
             eosioJavaRpcProviderInitializerError.printStackTrace();
             this.publishProgress(Boolean.toString(false), eosioJavaRpcProviderInitializerError.getMessage());
@@ -126,13 +119,13 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         }
 
         // Creating ABI provider
-        IABIProvider abiProvider = new ABIProviderImpl(rpcProvider, serializationProvider);
+        AbiProviderImplTest abiProvider = new AbiProviderImplTest(rpcProvider, serializationProvider);
 
         // Creating Signature provider
-        SoftKeySignatureProviderImplTest signatureProvider = new SoftKeySignatureProviderImplTest();
+        ISignatureProvider signatureProvider = new SoftKeySignatureProviderImpl();
 
         try {
-            ((SoftKeySignatureProviderImplTest) signatureProvider).importKey(privateKey);
+            ((SoftKeySignatureProviderImpl) signatureProvider).importKey(privateKey);
         } catch (ImportKeyError importKeyError) {
             importKeyError.printStackTrace();
             this.publishProgress(Boolean.toString(false), importKeyError.getMessage());
@@ -157,27 +150,20 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 //                "\"host\": \"" + host + "\"\n" +
 //                "}";
 
-        String contextFreeData = "test";
-        String contextFreeData2 = "{\"some\": \"jsonData\"}";
-        String contextFreeData3 = "!@#$%^&*()_+";
-
+        /**
+         * TODO:: This needs to be updated once {@link SerializationProviderImplTest#serializeContextFreeData} is completed
+         */
         ArrayList<String> cfd = new ArrayList<String>();
-        cfd.add(contextFreeData);
-        cfd.add(contextFreeData2);
-        cfd.add(contextFreeData3);
+//        String contextFreeData = "test";
+//        String contextFreeData2 = "{\"some\": \"jsonData\"}";
+//        String contextFreeData3 = "!@#$%^&*()_+";
+//        String contextFreeData4 = "This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length.";
+//
+//        ArrayList<String> cfd = new ArrayList<String>();
 //        cfd.add(contextFreeData);
 //        cfd.add(contextFreeData2);
-//        cfd.add("another");
-//        cfd.add(contextFreeData);
-//        cfd.add(contextFreeData2);
-//        cfd.add("another");
-//        cfd.add(contextFreeData);
-//        cfd.add(contextFreeData2);
-//        cfd.add("another");
-//        cfd.add(contextFreeData);
-//        cfd.add(contextFreeData2);
-//        cfd.add("another");
-        //cfd.add("some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too. some long thing here lets see what happens when its really long. idk what to write here. i'll copy it too.");
+//        cfd.add(contextFreeData3);
+//        cfd.add(contextFreeData4);
 
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
