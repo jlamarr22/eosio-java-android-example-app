@@ -33,6 +33,7 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
         return this.getHexContextFreeData(contextFreeData);
     }
 
+    // This does not work with data longer than 255 bytes
     public String getHexContextFreeData(List<String> contextFreeData) {
         if (contextFreeData.size() == 0) {
             return "";
