@@ -160,7 +160,7 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 //        String contextFreeData4 = "This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length.";
 //
 //        ArrayList<String> cfd = new ArrayList<String>();
-//        cfd.add(contextFreeData);
+        cfd.add(contextFreeData);
 //        cfd.add(contextFreeData2);
 //        cfd.add(contextFreeData3);
 //        cfd.add(contextFreeData4);
