@@ -33,7 +33,7 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
         }
 
         String finish = this.getHexContextFreeData(contextFreeData);
-        String test = testWorking(contextFreeData);
+        //String test = testWorking(contextFreeData);
 
         return finish;
     }
@@ -59,18 +59,31 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
             return "";
         }
 
-        ByteBuffer buffer = ByteBuffer.allocate(this.getTotalBytes(contextFreeData));
+        ByteBuffer buffer = ByteBuffer.allocate(1 + this.getTotalBytes(contextFreeData));
+        //ByteBuffer buffer = ByteBuffer.allocate(12);
 
         buffer.put(Byte.parseByte(String.valueOf(contextFreeData.size())));
+        //buffer.putInt(contextFreeData.size());
 
         for(String cfd : contextFreeData) {
             byte[] cfdBytes = cfd.getBytes();
-            buffer.put(Byte.parseByte(String.valueOf(cfdBytes.length)));
+            //buffer.put(Byte.parseByte(String.valueOf(cfdBytes.length)));
+            buffer.put((byte)0x80);
+            buffer.put((byte)1);
+            //buffer.putShort(cfdBytes.length);
             buffer.put(cfdBytes);
         }
 
         return Hex.toHexString(Sha256Hash.hash(buffer.array()));
     }
+
+//    private byte[] GetPrefix(int length) {
+//        byte[] bytes = new byte[2];
+//        if (length > 127) {
+//            bytes[0] = (byte)0x80;
+//            int
+//        }
+//    }
 
     public static final byte[] intToByteArray(int value) {
         return new byte[] {
