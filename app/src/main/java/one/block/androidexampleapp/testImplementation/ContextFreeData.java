@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ContextFreeData implements Serializable {
     @NotNull
-    public List<String> contextFreeData;
+    public List<String> data;
 
     @NotNull
     public byte[] rawBytes;
@@ -21,7 +21,7 @@ public class ContextFreeData implements Serializable {
 
     @NotNull
     public List<String> getData() {
-        return this.contextFreeData;
+        return this.data;
     }
 
     @NotNull
@@ -29,22 +29,22 @@ public class ContextFreeData implements Serializable {
         return this.rawBytes;
     }
 
-
     public void setBytes(byte[] bytes) {
         this.rawBytes = bytes;
     }
 
     public void setData(List<String> contextFreeData) {
-        if (contextFreeData.size() == 0) {
+        this.data = contextFreeData;
+        if (!this.hasData()) {
+            this.setBytes(new byte[0]);
             return;
         }
-        this.contextFreeData = contextFreeData;
 
-        ByteBuffer buffer = ByteBuffer.allocate(this.getTotalBytes(this.contextFreeData));
+        ByteBuffer buffer = ByteBuffer.allocate(this.getTotalBytes(this.data));
 
-        pushPrefix(buffer, this.contextFreeData.size());
+        pushPrefix(buffer, this.data.size());
 
-        for(String cfd : this.contextFreeData) {
+        for(String cfd : this.data) {
             byte[] cfdBytes = cfd.getBytes();
             pushPrefix(buffer, cfdBytes.length);
             buffer.put(cfdBytes);
@@ -54,29 +54,33 @@ public class ContextFreeData implements Serializable {
     }
 
     public String getHexed() {
-        if (this.contextFreeData.size() == 0) {
+        if (!this.hasData()) {
             return "";
         }
 
-        return Hex.toHexString(this.getBytes());
+        return Hex.toHexString(this.getBytes()).toUpperCase();
     }
 
-    public String getPacked() {
-        if (this.contextFreeData.size() == 0) {
+    public String getSerialized() {
+        if (!this.hasData()) {
             return "";
         }
 
         return Hex.toHexString(Sha256Hash.hash(this.getBytes()));
     }
 
+    public boolean hasData() {
+        return this.data.size() > 0;
+    }
+
     private void pushPrefix(ByteBuffer buffer, int length) {
         while(true) {
-            if (length >>> 7 == 0) {
+            if (this.isLessThan128(length)) {
                 buffer.put((byte)length);
                 break;
             } else {
                 buffer.put((byte)(0x80 | (length & 0x7f)));
-                length = length >>> 7;
+                length = this.subtract128(length);
             }
         }
     }
@@ -93,15 +97,23 @@ public class ContextFreeData implements Serializable {
     private Integer getByteSizePrefix(int length) {
         int size = 0;
         while(true) {
-            if (length >>> 7 == 0) {
+            if (this.isLessThan128(length)) {
                 size++;
                 break;
             } else {
                 size++;
-                length = length >>> 7;
+                length = this.subtract128(length);
             }
         }
 
         return size;
+    }
+
+    private boolean isLessThan128(int length) {
+        return length >>> 7 == 0;
+    }
+
+    private int subtract128(int length) {
+        return length >>> 7;
     }
 }

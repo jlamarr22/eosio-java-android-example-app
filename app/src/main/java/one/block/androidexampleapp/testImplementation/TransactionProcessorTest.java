@@ -932,7 +932,7 @@ public class TransactionProcessorTest {
 
     @NotNull
     private String serializeContextFreeData() throws SerializeContextFreeDataError {
-        return this.transaction.contextFreeData.getPacked();
+        return this.transaction.contextFreeData.getSerialized();
     }
 
     /**

@@ -154,7 +154,7 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
          * TODO:: This needs to be updated once {@link SerializationProviderImplTest#serializeContextFreeData} is completed
          */
         ArrayList<String> cfd = new ArrayList<String>();
-        String contextFreeData1 = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttestesttesttesttesttesttesttesttesttesttesttesttestte";
+        String contextFreeData1 = "test";
         //String contextFreeData1 = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
         String contextFreeData = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
         String contextFreeData2 = "{\"some\": \"jsonData\"}";
@@ -163,7 +163,7 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 //
 //        ArrayList<String> cfd = new ArrayList<String>();
         cfd.add(contextFreeData1);
-        cfd.add(contextFreeData);
+        //cfd.add(contextFreeData);
         cfd.add(contextFreeData2);
         cfd.add(contextFreeData3);
         cfd.add(contextFreeData4);
