@@ -1,31 +1,27 @@
 package one.block.androidexampleapp.testImplementation;
 
-import com.google.gson.annotations.SerializedName;
-
-import java.lang.reflect.Array;
 import org.bitcoinj.core.Sha256Hash;
 import org.bouncycastle.util.encoders.Hex;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ContextFreeData implements Serializable {
     @NotNull
-    public List<String> rawContextFreeData;
+    public List<String> contextFreeData;
 
     @NotNull
     public byte[] rawBytes;
 
     public ContextFreeData(@NotNull List<String> contextFreeData) {
-        this.rawContextFreeData = contextFreeData;
+        this.contextFreeData = contextFreeData;
     }
 
     @NotNull
-    public List<String> getContextFreeData() {
-        return this.rawContextFreeData;
+    public List<String> getData() {
+        return this.contextFreeData;
     }
 
     @NotNull
@@ -38,41 +34,24 @@ public class ContextFreeData implements Serializable {
         this.rawBytes = bytes;
     }
 
-//    @NotNull
-//    public List<String> getHexContextFreeData() {
-//        List<String> hexedContextFreeData = new ArrayList<String>();
-//
-//        for(String cfd : rawContextFreeData) {
-//            hexedContextFreeData.add(Hex.toHexString(cfd.getBytes()));
-//        }
-//
-//        return hexedContextFreeData;
-//    }
-
     public String getPackedContextFreeData() {
-        if (this.rawContextFreeData.size() == 0) {
+        if (this.contextFreeData.size() == 0) {
             return "";
         }
 
         return Hex.toHexString(this.rawBytes);
     }
 
-    // Splits by 128
-    private String getHexPrefix(int length) {
-
-        return String.format("%02X", length);
-    }
-
     public String getHexContextFreeData() {
-        if (this.rawContextFreeData.size() == 0) {
+        if (this.contextFreeData.size() == 0) {
             return "";
         }
 
-        ByteBuffer buffer = ByteBuffer.allocate(this.getTotalBytes(this.rawContextFreeData));
+        ByteBuffer buffer = ByteBuffer.allocate(this.getTotalBytes(this.contextFreeData));
 
-        pushPrefix(buffer, this.rawContextFreeData.size());
+        pushPrefix(buffer, this.contextFreeData.size());
 
-        for(String cfd : this.rawContextFreeData) {
+        for(String cfd : this.contextFreeData) {
             byte[] cfdBytes = cfd.getBytes();
             pushPrefix(buffer, cfdBytes.length);
             buffer.put(cfdBytes);
