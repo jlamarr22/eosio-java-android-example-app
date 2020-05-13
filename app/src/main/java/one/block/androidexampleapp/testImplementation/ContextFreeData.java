@@ -96,19 +96,26 @@ public class ContextFreeData implements Serializable {
     }
 
     private Integer getTotalBytes(List<String> contextFreeData) {
-        int bytes = contextFreeData.size() > 127 ? 2 : 1;
+        int bytes =  this.getByteSizePrefix(contextFreeData.size());
         for(String cfd : contextFreeData) {
             byte[] cfdBytes = cfd.getBytes();
-            bytes += this.getPrefixByteSize(cfdBytes.length);
+            bytes += this.getByteSizePrefix(cfdBytes.length) + cfdBytes.length;
         }
         return bytes;
     }
 
-    private Integer getPrefixByteSize(int length) {
-        if (length > 127) {
-            return 2 + length;
-        } else {
-            return 1 + length;
+    private Integer getByteSizePrefix(int length) {
+        int size = 0;
+        while(true) {
+            if (length >>> 7 == 0) {
+                size++;
+                break;
+            } else {
+                size++;
+                length = length >>> 7;
+            }
         }
+
+        return size;
     }
 }
