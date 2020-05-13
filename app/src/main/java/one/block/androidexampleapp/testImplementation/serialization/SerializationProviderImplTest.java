@@ -3,6 +3,8 @@ package one.block.androidexampleapp.testImplementation.serialization;
 import org.bitcoinj.core.Sha256Hash;
 import org.bouncycastle.util.encoders.Hex;
 
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +32,25 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
             return "";
         }
 
-        return this.getHexContextFreeData(contextFreeData);
+        String finish = this.getHexContextFreeData(contextFreeData);
+        String test = testWorking(contextFreeData);
+
+        return finish;
+    }
+
+    public String testWorking(List<String> contextFreeData) {
+        byte[] bytes = new byte[this.getTotalBytes(contextFreeData)];
+        int index = 0;
+        bytes[index++] = Byte.parseByte(String.valueOf(contextFreeData.size()));
+        for(String cfd : contextFreeData) {
+            byte[] cfdBytes = cfd.getBytes();
+            bytes[index++] = Byte.parseByte(String.valueOf(cfdBytes.length));
+            for (int i = 0; i < cfdBytes.length; i++) {
+                bytes[index++] = cfdBytes[i];
+            }
+        }
+
+        return Hex.toHexString(Sha256Hash.hash(bytes));
     }
 
     // This does not work with data longer than 255 bytes
@@ -38,20 +58,37 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
         if (contextFreeData.size() == 0) {
             return "";
         }
-        byte[] bytes = new byte[this.getTotalBytes(contextFreeData)];
-        bytes[0] = Byte.parseByte(String.valueOf(contextFreeData.size()));
-        int index = 1;
+
+        ByteBuffer buffer = ByteBuffer.allocate(this.getTotalBytes(contextFreeData));
+
+        buffer.put(Byte.parseByte(String.valueOf(contextFreeData.size())));
+
         for(String cfd : contextFreeData) {
             byte[] cfdBytes = cfd.getBytes();
-            bytes[index] = Byte.parseByte(String.valueOf(cfdBytes.length));
-            index++;
-            for (int i = 0; i < cfdBytes.length; i++) {
-                bytes[index] = cfdBytes[i];
-                index++;
-            }
+            buffer.put(Byte.parseByte(String.valueOf(cfdBytes.length)));
+            buffer.put(cfdBytes);
         }
 
-        return Hex.toHexString(Sha256Hash.hash(bytes));
+        return Hex.toHexString(Sha256Hash.hash(buffer.array()));
+    }
+
+    public static final byte[] intToByteArray(int value) {
+        return new byte[] {
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)value};
+    }
+
+    private void PushInt32(int number, ByteBuffer buffer) {
+        while (true) {
+            if (number >>> 7 == 0) {
+                buffer.put((byte)(0x80 | (number & 0x7f)));
+                number = number >>> 7;
+            } else {
+                buffer.put((byte)number);
+            }
+        }
     }
 
     private Integer getTotalBytes(List<String> contextFreeData) {
