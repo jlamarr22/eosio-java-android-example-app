@@ -73,14 +73,6 @@ public class TransactionTest extends Transaction {
                 contextFreeActions, actions, transactionExtensions, new ArrayList<String>());
     }
 
-    public List<String> getContextFreeData() {
-        return this.contextFreeData != null ? this.contextFreeData.getContextFreeData() : new ArrayList<String>();
-    }
-
-    public List<String> getHexContextFreeData() {
-        return this.contextFreeData != null ? this.contextFreeData.getHexContextFreeData() : new ArrayList<String>();
-    }
-
     public String getPackedContextFreeData() {
         return this.contextFreeData != null ? this.contextFreeData.getPackedContextFreeData() : "";
     }

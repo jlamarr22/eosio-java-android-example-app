@@ -932,16 +932,7 @@ public class TransactionProcessorTest {
 
     @NotNull
     private String serializeContextFreeData() throws SerializeContextFreeDataError {
-        String _serializedContextFreeData;
-        try {
-            _serializedContextFreeData = this.serializationProvider.serializeContextFreeData(this.transaction.getContextFreeData());
-        } catch (SerializeContextFreeDataError serializeDataError) {
-            throw new SerializeContextFreeDataError(
-                    "Some error", serializeDataError
-            );
-        }
-
-        return _serializedContextFreeData;
+        return this.transaction.contextFreeData.getHexContextFreeData();
     }
 
     /**

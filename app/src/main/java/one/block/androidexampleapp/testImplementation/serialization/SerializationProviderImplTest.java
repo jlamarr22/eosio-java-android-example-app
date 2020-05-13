@@ -59,17 +59,19 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
             return "";
         }
 
-        ByteBuffer buffer = ByteBuffer.allocate(1 + this.getTotalBytes(contextFreeData));
+        ByteBuffer buffer = ByteBuffer.allocate(this.getTotalBytes(contextFreeData));
         //ByteBuffer buffer = ByteBuffer.allocate(12);
 
-        buffer.put(Byte.parseByte(String.valueOf(contextFreeData.size())));
+        pushPrefix(buffer, contextFreeData.size());
+
+        //buffer.put(Byte.parseByte(String.valueOf(contextFreeData.size())));
         //buffer.putInt(contextFreeData.size());
 
         for(String cfd : contextFreeData) {
             byte[] cfdBytes = cfd.getBytes();
-            //buffer.put(Byte.parseByte(String.valueOf(cfdBytes.length)));
-            buffer.put((byte)0x80);
-            buffer.put((byte)1);
+//            buffer.put((byte)0x80);
+//            buffer.put((byte)1);
+            pushPrefix(buffer, cfdBytes.length);
             //buffer.putShort(cfdBytes.length);
             buffer.put(cfdBytes);
         }
@@ -77,29 +79,14 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
         return Hex.toHexString(Sha256Hash.hash(buffer.array()));
     }
 
-//    private byte[] GetPrefix(int length) {
-//        byte[] bytes = new byte[2];
-//        if (length > 127) {
-//            bytes[0] = (byte)0x80;
-//            int
-//        }
-//    }
-
-    public static final byte[] intToByteArray(int value) {
-        return new byte[] {
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)value};
-    }
-
-    private void PushInt32(int number, ByteBuffer buffer) {
-        while (true) {
-            if (number >>> 7 == 0) {
-                buffer.put((byte)(0x80 | (number & 0x7f)));
-                number = number >>> 7;
+    private void pushPrefix(ByteBuffer buffer, int length) {
+        while(true) {
+            if (length >>> 7 == 0) {
+                buffer.put((byte)length);
+                break;
             } else {
-                buffer.put((byte)number);
+                buffer.put((byte)(0x80 | (length & 0x7f)));
+                length = length >>> 7;
             }
         }
     }
@@ -107,7 +94,12 @@ public class SerializationProviderImplTest extends AbiEosSerializationProviderIm
     private Integer getTotalBytes(List<String> contextFreeData) {
         int bytes = 1;
         for(String cfd : contextFreeData) {
-            bytes += 1 + cfd.getBytes().length;
+            byte[] cfdBytes = cfd.getBytes();
+            if (cfdBytes.length > 127) {
+                bytes += 2 + cfdBytes.length;
+            } else {
+                bytes += 1 + cfdBytes.length;
+            }
         }
         return bytes;
     }
