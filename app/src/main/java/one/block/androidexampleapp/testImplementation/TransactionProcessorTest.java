@@ -490,7 +490,7 @@ public class TransactionProcessorTest {
         }
 
         PushTransactionRequest pushTransactionRequest = new PushTransactionRequest(this.signatures,
-                0, this.transaction.getPackedContextFreeData(), this.serializedTransaction);
+                0, this.transaction.contextFreeData.getHexed(), this.serializedTransaction);
         try {
             return this.pushTransaction(pushTransactionRequest);
         } catch (TransactionPushTransactionError transactionPushTransactionError) {
@@ -543,7 +543,7 @@ public class TransactionProcessorTest {
 
         // Signatures and serializedTransaction are assigned and finalized in getSignature() method
         PushTransactionRequest pushTransactionRequest = new PushTransactionRequest(this.signatures,
-                0, this.transaction.getPackedContextFreeData(), this.serializedTransaction);
+                0, this.transaction.contextFreeData.getHexed(), this.serializedTransaction);
         try {
             return this.pushTransaction(pushTransactionRequest);
         } catch (TransactionPushTransactionError transactionPushTransactionError) {
@@ -932,7 +932,7 @@ public class TransactionProcessorTest {
 
     @NotNull
     private String serializeContextFreeData() throws SerializeContextFreeDataError {
-        return this.transaction.contextFreeData.getHexContextFreeData();
+        return this.transaction.contextFreeData.getPacked();
     }
 
     /**

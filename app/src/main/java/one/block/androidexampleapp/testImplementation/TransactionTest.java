@@ -72,9 +72,5 @@ public class TransactionTest extends Transaction {
         this(expiration, refBlockNum, refBlockPrefix, maxNetUsageWords, maxCpuUsageMs, delaySec,
                 contextFreeActions, actions, transactionExtensions, new ArrayList<String>());
     }
-
-    public String getPackedContextFreeData() {
-        return this.contextFreeData != null ? this.contextFreeData.getPackedContextFreeData() : "";
-    }
 }
 

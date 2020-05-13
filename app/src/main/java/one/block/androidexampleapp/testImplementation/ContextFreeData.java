@@ -16,7 +16,7 @@ public class ContextFreeData implements Serializable {
     public byte[] rawBytes;
 
     public ContextFreeData(@NotNull List<String> contextFreeData) {
-        this.contextFreeData = contextFreeData;
+        this.setData(contextFreeData);
     }
 
     @NotNull
@@ -34,18 +34,11 @@ public class ContextFreeData implements Serializable {
         this.rawBytes = bytes;
     }
 
-    public String getPackedContextFreeData() {
-        if (this.contextFreeData.size() == 0) {
-            return "";
+    public void setData(List<String> contextFreeData) {
+        if (contextFreeData.size() == 0) {
+            return;
         }
-
-        return Hex.toHexString(this.rawBytes);
-    }
-
-    public String getHexContextFreeData() {
-        if (this.contextFreeData.size() == 0) {
-            return "";
-        }
+        this.contextFreeData = contextFreeData;
 
         ByteBuffer buffer = ByteBuffer.allocate(this.getTotalBytes(this.contextFreeData));
 
@@ -58,8 +51,22 @@ public class ContextFreeData implements Serializable {
         }
 
         this.setBytes(buffer.array());
+    }
 
-        return Hex.toHexString(Sha256Hash.hash(buffer.array()));
+    public String getHexed() {
+        if (this.contextFreeData.size() == 0) {
+            return "";
+        }
+
+        return Hex.toHexString(this.getBytes());
+    }
+
+    public String getPacked() {
+        if (this.contextFreeData.size() == 0) {
+            return "";
+        }
+
+        return Hex.toHexString(Sha256Hash.hash(this.getBytes()));
     }
 
     private void pushPrefix(ByteBuffer buffer, int length) {
