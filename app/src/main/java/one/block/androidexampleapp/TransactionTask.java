@@ -155,15 +155,11 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
          */
         ArrayList<String> cfd = new ArrayList<String>();
         String contextFreeData1 = "test";
-        //String contextFreeData1 = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
-        String contextFreeData = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
         String contextFreeData2 = "{\"some\": \"jsonData\"}";
         String contextFreeData3 = "!@#$%^&*()_+";
         String contextFreeData4 = "This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length.This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length.This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length.";
-//
-//        ArrayList<String> cfd = new ArrayList<String>();
+
         cfd.add(contextFreeData1);
-        //cfd.add(contextFreeData);
         cfd.add(contextFreeData2);
         cfd.add(contextFreeData3);
         cfd.add(contextFreeData4);
@@ -171,7 +167,6 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         for (int i = 0; i < 128; i++) {
             cfd.add("test");
         }
-        //cfd.add("test");
 
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
