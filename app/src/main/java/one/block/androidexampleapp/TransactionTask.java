@@ -81,12 +81,10 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
     @Override
     protected Void doInBackground(String... params) {
         String nodeUrl = params[0];
-        String privateKey = "5KYjzAywvTnkSDDyvCBoXAiEsjtDEMRzJ3yrXRhyF6VDs9b5RBj";
+        String privateKey = params[3];
         String account = "cfhello";
         String actor = "cfactor";
-        String user = "test user";
-
-        //this.publishProgress("Transferring " + amount + " to " + toAccount);
+        String user = "user1";
 
         // Creating serialization provider
         ISerializationProvider serializationProvider;
@@ -136,12 +134,12 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 
         // Creating action with action's data, eosio.token contract and transfer action.
         Action action = new Action(account, "normal", Collections.singletonList(new Authorization(actor, "active")), jsonData);
-        Action contextFree = new Action(account, "contextfree", new ArrayList<Authorization>(), "");
-        try {
+        Action contextFreeWithData = new Action(account, "contextfree", new ArrayList<Authorization>(), "");
 
+        try {
             // Prepare transaction with above action. A transaction can be executed with multiple action.
             this.publishProgress("Preparing Transaction...");
-            processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFree), cfd);
+            processor.prepare(Collections.singletonList(action), Collections.singletonList(contextFreeWithData), cfd);
             //processor.prepare(Collections.singletonList(action));
 
             // Sign and broadcast the transaction.

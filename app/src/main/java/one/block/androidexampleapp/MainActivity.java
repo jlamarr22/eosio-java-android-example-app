@@ -93,9 +93,9 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.update();
                 btnTransfer.setEnabled(true);
 
-                if (success) {
-                    executeCheckBalance(nodeUrl);
-                }
+//                if (success) {
+//                    executeCheckBalance(nodeUrl);
+//                }
             }
         }).execute(nodeUrl, fromAccount, toAccount, privateKey, amount, memo);
     }
