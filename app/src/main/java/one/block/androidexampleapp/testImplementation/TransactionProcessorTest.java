@@ -628,7 +628,7 @@ public class TransactionProcessorTest {
 
         // Cache the serialized version of transaction in the TransactionProcessor
         this.serializedTransaction = this.serializeTransaction();
-        this.serializedContextFreeData = this.serializeContextFreeData();
+        //this.serializedContextFreeData = this.serializeContextFreeData();
 
         EosioTransactionSignatureRequestTest eosioTransactionSignatureRequest = new EosioTransactionSignatureRequestTest(
                 this.getSerializedTransaction(),
@@ -897,19 +897,19 @@ public class TransactionProcessorTest {
     @NotNull
     private AbiEosSerializationObject serializeAction(Action action, String chainId, IABIProvider abiProvider)
             throws TransactionCreateSignatureRequestError {
-        String actionAbiJSON;
-        try {
-            actionAbiJSON = abiProvider
-                    .getAbi(chainId, new EOSIOName(action.getAccount()));
-        } catch (GetAbiError getAbiError) {
-            throw new TransactionCreateSignatureRequestAbiError(
-                    String.format(ErrorConstants.TRANSACTION_PROCESSOR_GET_ABI_ERROR,
-                            action.getAccount()), getAbiError);
-        }
+        String actionAbiJSON = this.tempGetAbi();
+//        try {
+//            actionAbiJSON = abiProvider
+//                    .getAbi(chainId, new EOSIOName(action.getAccount()));
+//        } catch (GetAbiError getAbiError) {
+//            throw new TransactionCreateSignatureRequestAbiError(
+//                    String.format(ErrorConstants.TRANSACTION_PROCESSOR_GET_ABI_ERROR,
+//                            action.getAccount()), getAbiError);
+//        }
 
         AbiEosSerializationObject actionAbiEosSerializationObject = new AbiEosSerializationObject(
                 action.getAccount(), action.getName(),
-                null, actionAbiJSON);
+                "any_object", actionAbiJSON);
         actionAbiEosSerializationObject.setHex("");
 
         // !!! At this step, the data field of the action is still in JSON format.
@@ -930,18 +930,85 @@ public class TransactionProcessorTest {
         return actionAbiEosSerializationObject;
     }
 
-    @NotNull
-    private String serializeContextFreeData() throws SerializeContextFreeDataError {
-        String _serializedContextFreeData;
-        try {
-            _serializedContextFreeData = this.serializationProvider.serializeContextFreeData(this.transaction.getContextFreeData());
-        } catch (SerializeContextFreeDataError serializeDataError) {
-            throw new SerializeContextFreeDataError(
-                    "Some error", serializeDataError
-            );
-        }
-
-        return _serializedContextFreeData;
+    private String tempGetAbi() {
+        return "{\n"
+                + "    \"version\": \"eosio::abi/1.1\",\n"
+                + "    \"types\": [\n"
+                + "        {\n"
+                + "            \"new_type_name\": \"any_array\",\n"
+                + "            \"type\": \"anyvar[]\"\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"new_type_name\": \"any_object\",\n"
+                + "            \"type\": \"field[]\"\n"
+                + "        }\n"
+                + "    ],\n"
+                + "    \"structs\": [\n"
+                + "        {\n"
+                + "            \"name\": \"null_t\",\n"
+                + "            \"base\": \"\",\n"
+                + "            \"fields\": []\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"name\": \"field\",\n"
+                + "            \"base\": \"\",\n"
+                + "            \"fields\": [\n"
+                + "                {\n"
+                + "                    \"name\": \"name\",\n"
+                + "                    \"type\": \"string\"\n"
+                + "                },\n"
+                + "                {\n"
+                + "                    \"name\": \"value\",\n"
+                + "                    \"type\": \"anyvar\"\n"
+                + "                }\n"
+                + "            ]\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"name\": \"query\",\n"
+                + "            \"base\": \"\",\n"
+                + "            \"fields\": [\n"
+                + "                {\n"
+                + "                    \"name\": \"method\",\n"
+                + "                    \"type\": \"string\"\n"
+                + "                },\n"
+                + "                {\n"
+                + "                    \"name\": \"arg\",\n"
+                + "                    \"type\": \"anyvar?\"\n"
+                + "                },\n"
+                + "                {\n"
+                + "                    \"name\": \"filter\",\n"
+                + "                    \"type\": \"query[]\"\n"
+                + "                }\n"
+                + "            ]\n"
+                + "        }\n"
+                + "    ],\n"
+                + "    \"variants\": [\n"
+                + "        {\n"
+                + "            \"name\": \"anyvar\",\n"
+                + "            \"types\": [\n"
+                + "                \"null_t\",\n"
+                + "                \"int64\",\n"
+                + "                \"uint64\",\n"
+                + "                \"int32\",\n"
+                + "                \"uint32\",\n"
+                + "                \"int16\",\n"
+                + "                \"uint16\",\n"
+                + "                \"int8\",\n"
+                + "                \"uint8\",\n"
+                + "                \"time_point\",\n"
+                + "                \"checksum256\",\n"
+                + "                \"float64\",\n"
+                + "                \"string\",\n"
+                + "                \"any_object\",\n"
+                + "                \"any_array\",\n"
+                + "                \"bytes\",\n"
+                + "                \"symbol\",\n"
+                + "                \"symbol_code\",\n"
+                + "                \"asset\"\n"
+                + "            ]\n"
+                + "        }\n"
+                + "    ]\n"
+                + "}";
     }
 
     /**

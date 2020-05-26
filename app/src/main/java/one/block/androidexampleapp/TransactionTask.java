@@ -86,16 +86,16 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
     @Override
     protected Void doInBackground(String... params) {
         String nodeUrl = params[0];
-        String fromAccount = params[1];
         String toAccount = params[2];
         String privateKey = params[3];
         String amount = params[4];
-        String memo = params[5];
-        String exampleAccount = "example";
-        String account = "tictactoe";
-        String propertyName = "aproperty";
+        String account = "cfhello";
+        String actor = "cfactor";
         String challenger = "opponent";
         String host = "host";
+
+        String privateKey1 = "5KYjzAywvTnkSDDyvCBoXAiEsjtDEMRzJ3yrXRhyF6VDs9b5RBj";
+        String privateKey2 = "5K8Sm2bB2b7ZC8tJMefrk1GFa4jgtHxxHRcjX49maMk9AEwq8hN";
 
         this.publishProgress("Transferring " + amount + " to " + toAccount);
 
@@ -125,7 +125,8 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         SoftKeySignatureProviderImplTest signatureProvider = new SoftKeySignatureProviderImplTest();
 
         try {
-            ((SoftKeySignatureProviderImplTest) signatureProvider).importKey(privateKey);
+            ((SoftKeySignatureProviderImplTest) signatureProvider).importKey(privateKey1);
+            ((SoftKeySignatureProviderImplTest) signatureProvider).importKey(privateKey2);
         } catch (ImportKeyError importKeyError) {
             importKeyError.printStackTrace();
             this.publishProgress(Boolean.toString(false), importKeyError.getMessage());
@@ -137,39 +138,23 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
         TransactionProcessorTest processor = session.getTransactionProcessor();
 
         // Apply transaction data to Action's data
-        String jsonData = "{\n" +
-                "\"challenger\": \"" + challenger + "\",\n" +
-                "\"host\": \"" + host + "\",\n" +
-                "\"by\": \"" + host + "\"\n" +
-                "}";
-
-        this.publishProgress("jsonData: " + jsonData);
-
-//        String contextFreeData = "{\n" +
-//                "\"challenger\": \"" + challenger + "\",\n" +
-//                "\"host\": \"" + host + "\"\n" +
+//        String data = "{\n" +
+//                "\"method\": \"" + "something" + "\",\n" +
+//                "\"arg\": \"" + "[\"string\", \"bar\"]" + "\",\n" +
+//                "\"filter\": \"" + "[]" + "\"\n" +
 //                "}";
+        //String data = "[{\"method\":\"something\",\"arg\":[\"string\",\"bar\"],\"filter\":[]}]";
 
-        /**
-         * TODO:: This needs to be updated once {@link SerializationProviderImplTest#serializeContextFreeData} is completed
-         */
-        ArrayList<String> cfd = new ArrayList<String>();
-        String contextFreeData = "test";
-        String contextFreeData2 = "{\"some\": \"jsonData\"}";
-        String contextFreeData3 = "!@#$%^&*()_+";
-//        String contextFreeData4 = "This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length. This is some long context free data input. It can have whatever data you want in it. It will be copied multiple times to increase length.";
-//
-//        ArrayList<String> cfd = new ArrayList<String>();
-        cfd.add(contextFreeData);
-        cfd.add(contextFreeData2);
-        cfd.add(contextFreeData3);
-//        cfd.add(contextFreeData4);
+        String data = "[{\"name\":\"something\",\"value\":[\"string\",\"bar\"]}]";
+
+        String contextFreeData = "";
 
         // Creating action with action's data, eosio.token contract and transfer action.
-        Action action = new Action(account, "contextfree", Collections.singletonList(new Authorization(account, "active")), jsonData);
+        //Action action = new Action(account, "normal", Collections.singletonList(new Authorization(actor, "active")), data);
+        Action action = new Action(account, "normal", Collections.singletonList(new Authorization(actor, "active")), data);
         try {
             this.publishProgress("Preparing Transaction...");
-            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), cfd);
+            processor.prepare(Collections.singletonList(action), new ArrayList<Action>(), Collections.singletonList(contextFreeData));
 
             // Sign and broadcast the transaction.
             this.publishProgress("Signing and Broadcasting Transaction...");

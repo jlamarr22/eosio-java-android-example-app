@@ -835,7 +835,7 @@ public class EOSFormatterTest {
             throw new EOSFormatterError(ErrorConstants.EMPTY_INPUT_PREPARE_SERIALIZIED_TRANS_FOR_SIGNING);
         }
 
-        String contextFreeData = serializedContextFreeData.length() > 0 ? serializedContextFreeData : Hex.toHexString(new byte[32]);
+        String contextFreeData = Hex.toHexString(new byte[32]);
 
         String signableTransaction = chainId + serializedTransaction + contextFreeData;
 
