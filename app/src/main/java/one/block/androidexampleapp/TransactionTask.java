@@ -2,6 +2,7 @@ package one.block.androidexampleapp;
 
 import android.os.AsyncTask;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -80,13 +81,10 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
     @Override
     protected Void doInBackground(String... params) {
         String nodeUrl = params[0];
-        String fromAccount = params[1];
-        String toAccount = params[2];
         String privateKey = params[3];
-        String amount = params[4];
-        String memo = params[5];
-
-        this.publishProgress("Transferring " + amount + " to " + toAccount);
+        String account = "cfhello";
+        String actor = "cfactor";
+        String user = "user1";
 
         // Creating serialization provider
         ISerializationProvider serializationProvider;
@@ -127,14 +125,11 @@ public class TransactionTask extends AsyncTask<String, String, Void> {
 
         // Apply transaction data to Action's data
         String jsonData = "{\n" +
-                "\"from\": \"" + fromAccount + "\",\n" +
-                "\"to\": \"" + toAccount + "\",\n" +
-                "\"quantity\": \"" + amount + "\",\n" +
-                "\"memo\" : \"" + memo + "\"\n" +
+                "\"user\": \"" + user + "\"\n" +
                 "}";
 
         // Creating action with action's data, eosio.token contract and transfer action.
-        Action action = new Action("eosio.token", "transfer", Collections.singletonList(new Authorization(fromAccount, "active")), jsonData);
+        Action action = new Action(account, "normal", Collections.singletonList(new Authorization(actor, "active")), jsonData);
         try {
 
             // Prepare transaction with above action. A transaction can be executed with multiple action.
